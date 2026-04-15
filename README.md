@@ -1,6 +1,6 @@
 # 🛡️ Aequitas AI — The Industrial Fairness Kernel
 
-![Aequitas Hero Banner](./docs/hero-banner.png)
+![Aequitas Hero Banner](./aequitas-v2.png)
 
 [![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
