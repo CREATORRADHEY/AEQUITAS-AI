@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { href: '/',         label: 'Dashboard',      Icon: LayoutDashboard },
   { href: '/analysis', label: 'Data Analysis',  Icon: BarChart3 },
   { href: '/models',   label: 'Model Registry', Icon: Database },
+  { href: '/advisor',  label: 'AI Advisor',     Icon: ShieldCheck },
 ];
 
 export function AppSidebar({ footer, ledLabel = 'Kernel: Operational' }: SidebarProps) {
