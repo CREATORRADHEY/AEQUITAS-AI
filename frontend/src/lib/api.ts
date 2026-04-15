@@ -3,7 +3,7 @@
  * All backend calls go through this module for consistent error handling and typing.
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+const BASE_URL = 'https://aequitas-backend-687756290895.us-central1.run.app';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

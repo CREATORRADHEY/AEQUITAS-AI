@@ -1,21 +1,31 @@
 # --- Frontend Dockerfile ---
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package config and install
+# Copy dependency configs
 COPY package*.json ./
+
+# Install dependencies (ignoring the missing lockfile to generate a fresh x86 one)
 RUN npm install
 
-# Copy application code
+# Copy application code (User's perfect UI)
 COPY . .
 
-# Set environment variable for the backend API
-ENV NEXT_PUBLIC_API_URL=http://localhost:8000
+# Memory boost for Next.js build
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Build the application
+# Build the application (Standard build)
 RUN npm run build
 
-# Expose port and start
-EXPOSE 3000
-CMD ["npm", "start"]
+# Clear build memory env var for runtime
+ENV NODE_OPTIONS=""
+
+# Set runtime environment
+ENV PORT 8080
+ENV NODE_ENV production
+ENV HOSTNAME "0.0.0.0"
+EXPOSE 8080
+
+# Start the application using dynamic port
+CMD ["npm", "start", "--", "-p", "8080"]

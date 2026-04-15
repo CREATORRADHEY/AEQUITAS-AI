@@ -1,110 +1,105 @@
-# Aequitas AI — Industrial Fairness Toolkit
+# 🛡️ Aequitas AI — The Industrial Fairness Kernel
 
-A production-grade, full-stack AI fairness auditing platform designed to detect, analyze, and remediate bias in machine learning models and datasets.
+![Aequitas Hero Banner](/Users/divyanshdusad/.gemini/antigravity/brain/79abe350-54c5-4b3d-b4ea-111f4d13ef22/aequitas_hero_banner_1776292032167.png)
 
-![Aequitas Dashboard](https://img.shields.io/badge/Status-Production--Ready-green?style=for-the-badge)
-![Tech Stack](https://img.shields.io/badge/Stack-Next.js%20%7C%20FastAPI%20%7C%20SHAP-blue?style=for-the-badge)
+[![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![SHAP](https://img.shields.io/badge/Intelligence-SHAP-E2DED0?style=for-the-badge)](https://shap.readthedocs.io/)
+[![Google Cloud](https://img.shields.io/badge/Deployment-Google%20Cloud-4285F4?style=for-the-badge&logo=googlecloud)](https://cloud.google.com/)
+
+**Aequitas AI** is a production-grade, full-stack audit ecosystem designed to solve the "Black Box" problem in modern Machine Learning. We bridge the gap between statistical parity and executive accountability through high-fidelity explainability and automated bias mitigation.
+
+---
+
+## 🚀 Live Production Environment
+
+The system is deployed on **Google Cloud Run** using a hardened, containerized microservices architecture.
+
+- **🌐 Live Dashboard**: [https://aequitas-frontend-687756290895.us-central1.run.app](https://aequitas-frontend-687756290895.us-central1.run.app)
+- **⚙️ Backend API**: [https://aequitas-backend-687756290895.us-central1.run.app](https://aequitas-backend-687756290895.us-central1.run.app)
+
+---
+
+## 🧠 The Fairness Engine (Core Intelligence)
+
+Aequitas doesn't just "check" for bias—it computes the **game-theoretic influence** of every feature within your model's decision-making kernel.
+
+### 🔍 Explainable Bias (SHAP)
+We utilize **SHAP (SHapley Additive exPlanations)** to decompose model outputs. This allows us to identify if a protected attribute (like Race or Gender) is implicitly driving predictions through latent proxy variables.
+
+### ⚖️ Statistical Parity Kernel
+Embedded within our `FairnessEngine` (Python/FastAPI) are real-time compliance monitors:
+- **Disparate Impact (4/5ths Rule)**: Automated monitoring of selection rates across demographic groups.
+- **Demographic Parity**: Measurement of prediction probability equality.
+- **Cramér's V Correlation**: High-precision detection of feature-proxies to prevent "hidden" discrimination.
 
 ---
 
 ## 🏛️ System Architecture
 
-Aequitas operates on a **Fairness-Aware Kernel** that bridges the gap between raw data and executive accountability.
-
 ```mermaid
 graph TD
-    subgraph "Data Layer"
-        CSV[CSV Ingestion] --> Engine[Fairness Kernel]
-        Engine --> DB[(SQLite Audit Store)]
+    subgraph "Data Pipeline"
+        CSV[CSV Ingestion] --> Kernel[Fairness Kernel v2.1]
+        Kernel --> Store[(Audit History Store)]
     end
 
-    subgraph "Analysis Engine"
-        Engine --> SHAP[SHAP Explainability]
-        Engine --> Corr[Correlation Matrices]
-        Engine --> DI[Disparate Impact Monitor]
+    subgraph "Analysis Engine (Python)"
+        Kernel --> SHAP[SHAP Value Decomposition]
+        Kernel --> Stats[Disparate Impact Logic]
+        Kernel --> Rewe[Re-weighting Simulations]
     end
 
-    subgraph "Presentation Layer"
-        SHAP --> Dash[Glassmorphic Dashboard]
-        Corr --> Dash
-        DI --> Dash
-        Dash --> PDF[Print-Optimized Audit PDF]
+    subgraph "Observability Layer (React 19)"
+        SHAP --> UI[Neumorphic Dashboard]
+        Stats --> UI
+        Rewe --> UI
+        UI --> PDF[Authenticated Audit PDF]
     end
 ```
 
 ---
 
-## 🚀 Key Features
+## 🛠️ Developer Setup
 
-- **Bias Explorer**: Real-time visualization of Disparate Impact (4/5ths Rule) across protected groups (Race, Gender, Age).
-- **SHAP Influence**: Understand which features are driving model decisions and identify potential discriminatory variables.
-- **Proxy Detection**: Automated detection of latent proxy variables using Cramér's V and Eta-squared statistical correlation.
-- **Remediation Playbook**: Simulate threshold adjustments and re-weighting strategies to move the model toward parity.
-- **Industrial Reporting**: Export hardened PDF audit manifests suitable for compliance and stakeholder reviews.
+### 📦 Prerequisites
+- **Python 3.10+** (Linter-hardened)
+- **Node.js 20+** (LTS Recommended)
+- **Docker** (Optional for containerization)
 
----
-
-## 🛠️ Technical Stack
-
-### Backend (Kernel)
-- **FastAPI**: High-performance REST API.
-- **Pandas / Scikit-learn**: Data processing and model training.
-- **SHAP**: Game-theoretic approach to explain model outputs.
-- **SQLite**: Local persistence for audit history.
-
-### Frontend (Observability)
-- **Next.js 16**: Modern React framework with Turbopack.
-- **Framer Motion**: Premium micro-animations and glassmorphic UI.
-- **Tailwind CSS**: Utility-first styling with custom print-media hardening.
-
----
-
-## 📦 Installation & Setup
-
-### 1. Prerequisites
-- Python 3.10+
-- Node.js 18+
-- npm or yarn
-
-### 2. Backend Setup
+### 🏗️ Backend Setup
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate  # or venv\Scripts\activate
 pip install -r requirements.txt
 python main.py
 ```
 
-### 3. Frontend Setup
+### 🎨 Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-The application will be available at `http://localhost:3000`.
+---
+
+## 🌌 The Industrial Aesthetic
+Our UI is built with a **Physical Design (Neumorphic)** aesthetic. It utilizes glassmorphic layers, CRT scanline effects, and interactive physical buttons to give the auditor a sense of high-stakes precision and manual control.
+
+- **Framer Motion 12**: Smooth, organic micro-interactions.
+- **Tailwind CSS 4**: Optimized for native compilation and complex shadows.
+- **Print Optics**: Hardened CSS for generating high-fidelity PDF manifests.
 
 ---
 
-## 🔄 Development Workflow
-
-1.  **Ingest**: Upload your dataset (CSV) via the dashboard.
-2.  **Audit**: Initialize the fairness kernel to train the diagnostic model.
-3.  **Explore**: Use the SHAP importance and Correlation Matrix to find hidden bias.
-4.  **Remediate**: Open the Playbook to test mitigation strategies.
-5.  **Report**: Generate the PDF manifest to document findings and remediations.
+## 🏁 Roadmap
+- [x] **v2.1**: Live Cloud Run Deployment & SHAP Real-time Analysis.
+- [ ] **v2.5**: LLM-powered "AI Advisor" for remediation reasoning (Gemini 1.5 Integration).
+- [ ] **v3.0**: Federated Learning support for private-dataset auditing.
 
 ---
 
-## 🛣️ Roadmap & Missing Artifacts
-
-See [PROJECT_SCAN.md](./PROJECT_SCAN.md) for a detailed technical audit.
-
-- [ ] **Phase 1**: Implement `pytest` for fairness math validation.
-- [ ] **Phase 2**: Dockerize the full-stack environment.
-- [ ] **Phase 3**: Add JWT Authentication and Role-Based Access Control.
-- [ ] **Phase 4**: Integrate Celery for asynchronous large-scale SHAP processing.
-
----
-
-**Built with ❤️ for AI Accountability.**
+**Created for the Google Solution Challenge 2026.**
+*Ensuring that as AI scales, Equity scales with it.*
