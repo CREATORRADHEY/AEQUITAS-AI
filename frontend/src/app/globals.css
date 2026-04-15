@@ -1,0 +1,314 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Industrial Palette */
+  --chassis: #e0e5ec;
+  --panel: #f0f2f5;
+  --recessed: #d1d9e6;
+  --text-primary: #2d3436;
+  --text-muted: #4a5568;
+  --accent: #ff4757;
+  --accent-foreground: #ffffff;
+  
+  /* Shadow Pairs */
+  --shadow-color: #babecc;
+  --highlight-color: #ffffff;
+  --deep-shadow: #a3b1c6;
+
+  /* Default Mappings */
+  --background: var(--chassis);
+  --foreground: var(--text-primary);
+  
+  /* Neumorphic Shadow Tokens */
+  --shadow-card: 8px 8px 16px var(--shadow-color), -8px -8px 16px var(--highlight-color);
+  --shadow-floating: 12px 12px 24px var(--shadow-color), -12px -12px 24px var(--highlight-color), inset 1px 1px 0 rgba(255,255,255,0.5);
+  --shadow-pressed: inset 6px 6px 12px var(--shadow-color), inset -6px -6px 12px var(--highlight-color);
+  --shadow-recessed: inset 4px 4px 8px var(--shadow-color), inset -4px -4px 8px var(--highlight-color);
+}
+
+@theme inline {
+  --color-chassis: var(--chassis);
+  --color-panel: var(--panel);
+  --color-recessed: var(--recessed);
+  --color-text-primary: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-border-shadow: var(--shadow-color);
+  --color-border-highlight: var(--highlight-color);
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-floating: var(--shadow-floating);
+  --shadow-pressed: var(--shadow-pressed);
+  --shadow-recessed: var(--shadow-recessed);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 30px;
+}
+
+/* 
+  BUG FIX: Scope physics easing to non-animated elements only.
+  The original global * rule was overriding Framer Motion's timing functions,
+  causing jerky animations on motion.div elements.
+*/
+*:not([style*="transform"]):not([data-projection-id]) {
+  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+body {
+  background: var(--chassis);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Noise Texture Overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* CRT Scanlines Overlay */
+.crt-screen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.04) 50%);
+  background-size: 100% 2px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Carbon Fiber Texture */
+.carbon-fiber {
+  background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+  background-color: #2d3436;
+  mix-blend-mode: overlay;
+}
+
+/* ── Skeleton shimmer animation ──────────────────────────────────────────── */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
+/* ── Toast slide-in animation ────────────────────────────────────────────── */
+@keyframes toast-in {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* ── Print stylesheet for PDF Export ────────────────────────────────────── */
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: auto;
+  }
+
+  /* Structural Reset: Only force block flow on top-level layout wrappers */
+  html, body, #__next, .h-screen, .min-h-screen, main, section {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
+    background: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    float: none !important;
+  }
+
+  /* Allow components to keep their layout (Flex/Grid) */
+  .grid, .flex, .flex-col, .grid-cols-12 {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Force instant layout (no animations) for charts */
+  * {
+    transition: none !important;
+    animation: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* SPECIAL CASE: Keep the Correlation Matrix as a GRID */
+  .grid[style*="grid-template-columns"] {
+    display: grid !important;
+    gap: 1.5px !important;
+    width: 100% !important;
+    height: auto !important;
+    grid-auto-rows: min-content !important;
+  }
+
+  /* Ensure Matrix Cells are visible and colored */
+  .grid[style*="grid-template-columns"] > div {
+    min-height: 25pt !important;
+    border: 1px solid #eee !important;
+  }
+
+  /* HARD HIDE for Metadata, Scripts, and UI noise */
+  script, style, meta, link, [hidden], .hidden, 
+  .no-print, nav, .AppSidebar, header.no-print,
+  [role="status"], .z-\[9999\], .fixed, .absolute:not(.print-allow),
+  .crt-screen::after, body::before, html::after, .carbon-fiber {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  main {
+    padding: 0px !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  /* Force Page Breaks for specific sections */
+  .print-page-break {
+    break-before: page !important;
+    padding-top: 2cm !important;
+  }
+
+  /* Watermark Effect */
+  body::after {
+    content: "AEQUITAS CONFIDENTIAL AUDIT";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 80pt;
+    font-weight: 900;
+    color: rgba(0,0,0,0.03) !important;
+    z-index: -1;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* Executive-Style Typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', system-ui, sans-serif !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: -0.05em !important;
+    color: #0c0f16 !important;
+  }
+
+  p, span, div, b, strong, li {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    color: #1a202c !important;
+    line-height: 1.6 !important;
+    font-size: 11pt !important;
+  }
+
+  h1 { font-size: 24pt !important; margin-bottom: 20pt !important; }
+  h3 { font-size: 14pt !important; margin-top: 15pt !important; border-bottom: 1pt solid #eee !important; padding-bottom: 4pt !important; }
+
+  /* Professional Card Styling for Print */
+  .BoltedCard {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 4px !important;
+    padding: 1.2rem !important;
+    margin-bottom: 2rem !important;
+    break-inside: avoid;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .print-only {
+    display: block !important;
+    margin-bottom: 2rem;
+  }
+
+  /* Maintain colors for analysis accuracy */
+  div[style*="background-color"], 
+  .bg-accent, 
+  .bg-recessed,
+  .bg-chassis {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Force widths for animated bars in print */
+  div[style*="width"] {
+    display: block !important;
+    height: 100% !important;
+  }
+
+  /* Bar Chart Solid Colors for Print */
+  .bg-recessed { background-color: #f1f5f9 !important; }
+  .print-chart-bar {
+    height: 12pt !important;
+    display: block !important;
+    background-color: #64748b !important; /* Neutral slate */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  .print-chart-bar.bg-accent {
+    background-color: #cc0000 !important; /* Force red */
+  }
+
+  /* Increase container height */
+  .audit-metric-bar {
+    height: 12pt !important;
+    background-color: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  .text-accent { color: #cc0000 !important; }
+
+  /* Summary Table Alignment */
+  .grid-cols-2 {
+    display: table !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  
+  .grid-cols-2 > div {
+    display: table-cell !important;
+    vertical-align: top !important;
+    width: 50% !important;
+    padding: 10pt !important;
+  }
+}
+
+/* Global utility */
+.print-only {
+  display: none;
+}
