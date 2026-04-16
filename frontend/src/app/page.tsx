@@ -31,7 +31,10 @@ import {
   FileText,
   Sparkles,
   ArrowRight,
-  Loader2
+  Loader2,
+  Bell,
+  Server,
+  Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PhysicalButton } from '@/components/ui/physical-button';
@@ -263,9 +266,9 @@ function ResultScreen({ audit, onNext }: { audit: AuditResult, onNext: () => voi
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 py-6 max-w-6xl mx-auto">
-      <div className="flex flex-col lg:flex-row gap-10">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
          {/* Left: Score Gauge */}
-          <BoltedCard className="flex-1 p-10 flex flex-col items-center justify-center relative overflow-hidden group">
+          <BoltedCard className="w-full lg:flex-1 p-8 lg:p-10 flex flex-col items-center justify-center relative overflow-hidden group">
             <div className="relative w-48 h-48 flex items-center justify-center translate-y-2">
               <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 200 200" style={{ overflow: 'visible' }}>
                 <circle cx="100" cy="100" r="80" stroke="currentColor" strokeWidth="16" fill="transparent" className="text-recessed" />
@@ -379,24 +382,24 @@ function MitigationScreen({ audit, onFinalize }: { audit: AuditResult, onFinaliz
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10 py-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div className="space-y-1">
-          <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-none">Remediation Engine</h2>
-          <p className="font-mono text-[10px] md:text-xs text-text-muted uppercase decoration-accent/30 underline decoration-2">Simulating threshold parity adjustments</p>
+          <h2 className="text-3xl lg:text-4xl font-black uppercase tracking-tighter leading-none">Remediation Engine</h2>
+          <p className="font-mono text-[10px] lg:text-xs text-text-muted uppercase decoration-accent/30 underline decoration-2">Simulating threshold parity adjustments</p>
         </div>
         <div className="flex w-full sm:w-auto gap-3">
-           <PhysicalButton variant="ghost" className="flex-1 sm:flex-none gap-2" onClick={() => window.location.reload()}>
+           <PhysicalButton variant="ghost" className="flex-1 sm:flex-none gap-2 text-[10px]" onClick={() => window.location.reload()}>
               <Trash2 size={16} /> Reset
            </PhysicalButton>
-           <PhysicalButton variant="secondary" className="flex-1 sm:flex-none gap-2" onClick={downloadReport}>
+           <PhysicalButton variant="secondary" className="flex-1 sm:flex-none gap-2 text-[10px]" onClick={downloadReport}>
               <Download size={16} /> Audit Report
            </PhysicalButton>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-8">
-        <BoltedCard className="col-span-12 lg:col-span-8 p-6 md:p-10 space-y-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <BoltedCard className="col-span-1 lg:col-span-8 p-6 lg:p-10 space-y-10">
            <div className="space-y-6">
               <div className="flex justify-between items-center">
-                 <div className="font-mono text-[11px] font-black uppercase tracking-widest">Decision Threshold Tuning</div>
+                 <div className="font-mono text-[10px] lg:text-[11px] font-black uppercase tracking-widest">Decision Threshold Tuning</div>
                  <div className="text-xl font-black text-accent">{threshold.toFixed(2)}</div>
               </div>
               <input 
@@ -436,7 +439,7 @@ function MitigationScreen({ audit, onFinalize }: { audit: AuditResult, onFinaliz
            </div>
         </BoltedCard>
 
-        <div className="col-span-12 lg:col-span-4 space-y-6">
+        <div className="col-span-1 lg:col-span-4 space-y-6">
            <BoltedCard className="p-6 space-y-4">
               <h5 className="font-mono text-[10px] font-black uppercase text-text-muted tracking-widest flex items-center gap-2">
                 <ShieldAlert size={14} className="text-accent" /> Proxy Detection
@@ -525,15 +528,15 @@ function CertificationSuccess({ audit }: { audit: AuditResult }) {
         <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 to-transparent pointer-events-none rounded opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-         <PhysicalButton variant="ghost" className="w-full sm:w-auto gap-2" onClick={() => window.location.reload()}>
-            <RefreshCcw size={16} /> Start New Audit
+      <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-12">
+         <PhysicalButton variant="ghost" className="w-full sm:w-auto gap-2 py-6 text-sm" onClick={() => window.location.reload()}>
+            <RefreshCcw size={18} /> Start New Audit
          </PhysicalButton>
-         <PhysicalButton variant="primary" className="w-full sm:w-auto gap-2" onClick={() => {
+         <PhysicalButton variant="primary" className="w-full sm:w-auto gap-2 py-6 text-sm" onClick={() => {
             toast('Preparing digital certificate for print...', 'info');
             window.print();
          }}>
-            <Download size={16} /> Save Certificate
+            <Download size={18} /> Save Certificate
          </PhysicalButton>
       </div>
     </div>
@@ -587,19 +590,19 @@ function SystemConfigScreen() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 py-4 max-w-6xl mx-auto">
-      <div className="flex justify-between items-end border-b border-border-shadow/30 pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-border-shadow/30 pb-6 gap-6">
         <div>
-          <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">System Configuration</h2>
+          <h2 className="text-3xl lg:text-4xl font-black uppercase tracking-tighter leading-none">System Configuration</h2>
           <p className="font-mono text-[10px] text-text-muted mt-2 uppercase tracking-[0.2em] opacity-60">Industrial Control Panel / Root_Access</p>
         </div>
-        <PhysicalButton variant="primary" className="gap-2 px-8" onClick={saveConfig}>
+        <PhysicalButton variant="primary" className="w-full sm:w-auto gap-2 px-8" onClick={saveConfig}>
           <Download size={16} className="rotate-180" /> Save Changes
         </PhysicalButton>
       </div>
 
-      <div className="grid grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Main Column */}
-        <div className="col-span-12 lg:col-span-8 space-y-8">
+        <div className="col-span-1 lg:col-span-8 space-y-8">
           <BoltedCard className="p-8 space-y-8" elevated>
             <div className="flex items-center gap-4 mb-2">
               <div className="w-10 h-10 rounded bg-accent/10 flex items-center justify-center text-accent border border-accent/20">
@@ -641,7 +644,7 @@ function SystemConfigScreen() {
         </div>
 
         {/* Sidebar Column */}
-        <div className="col-span-12 lg:col-span-4 space-y-8">
+        <div className="col-span-1 lg:col-span-4 space-y-8">
           <BoltedCard className="p-8 space-y-6 bg-panel/40">
             <div className="flex items-center gap-4 mb-2">
               <div className="w-10 h-10 rounded bg-panel border-border-shadow flex items-center justify-center text-accent">
@@ -1112,6 +1115,11 @@ export default function Home() {
   const [history, setHistory] = useState<AuditHistoryItem[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
+  // Auto-close sidebar on mobile after navigation
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [activeView]);
+
   const { toast } = useToast();
 
   const fetchHistory = useCallback(async () => {
@@ -1198,20 +1206,24 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden">
-      <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+    <div className="flex h-screen w-full bg-chassis overflow-hidden relative">
+      <MobileHeader 
+        onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
+        title={activeView === 'wizard' ? 'AI Certification' : activeView.replace(/_/g, ' ')}
+      />
+
       <AppSidebar 
-        isOpen={isSidebarOpen} 
         onNavigate={(view: any) => {
           setActiveView(view);
           setIsSidebarOpen(false);
-          // Persistent: do not reset step when navigating
         }}
         activeView={activeView}
         isProcessing={step === 2}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
-      <main className="flex-1 overflow-y-auto p-6 lg:p-10 bg-chassis relative">
+      <main className="flex-1 overflow-y-auto p-6 pt-24 lg:p-10 lg:pt-10 bg-chassis relative scroll-smooth">
         <div className="absolute top-10 right-10 flex gap-4 z-20">
            {activeView === 'wizard' && step >= 3 && (
              <PhysicalButton 

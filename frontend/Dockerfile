@@ -1,31 +1,42 @@
-# --- Frontend Dockerfile ---
-FROM node:20-alpine
+# --- Hardened Next.js Dockerfile (Stabilized) ---
 
+# Stage 1: Dependencies
+FROM node:20-slim AS deps
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-# Copy dependency configs
 COPY package*.json ./
+# Use --legacy-peer-deps to handle React 19 / Next 15 / Framer-Motion / Lucide resolution conflicts
+RUN npm install --legacy-peer-deps
 
-# Install dependencies (ignoring the missing lockfile to generate a fresh x86 one)
-RUN npm install
-
-# Copy application code (User's perfect UI)
+# Stage 2: Builder
+FROM node:20-slim AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Memory boost for Next.js build
-ENV NODE_OPTIONS="--max-old-space-size=4096"
-
-# Build the application (Standard build)
+ENV NEXT_TELEMETRY_DISABLED 1
+# Ensure standalone output is generated
 RUN npm run build
 
-# Clear build memory env var for runtime
-ENV NODE_OPTIONS=""
+# Stage 3: Runner
+FROM node:20-slim AS runner
+WORKDIR /app
 
-# Set runtime environment
-ENV PORT 8080
 ENV NODE_ENV production
-ENV HOSTNAME "0.0.0.0"
-EXPOSE 8080
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Start the application using dynamic port
-CMD ["npm", "start", "--", "-p", "8080"]
+# Setup user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy essential files for standalone runtime
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+ENV PORT 8080
+ENV HOSTNAME "0.0.0.0"
+
+# Note: server.js is the entrypoint for Next.js standalone mode
+CMD ["node", "server.js"]

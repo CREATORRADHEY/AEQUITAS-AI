@@ -51,19 +51,19 @@ export default function AIAdvisorPage() {
   }, []);
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden bg-chassis">
-      <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
-      <AppSidebar isOpen={isSidebarOpen} activeView="advisor" />
+    <div className="flex h-screen w-full bg-chassis overflow-hidden relative">
+      <MobileHeader 
+        onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
+        title="AI Advisor"
+      />
+      
+      <AppSidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)}
+        activeView="advisor"
+      />
 
-      {/* Mobile Overlay */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      <main className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
+      <main className="flex-1 overflow-y-auto p-6 pt-24 lg:p-10 lg:pt-10 relative scroll-smooth">
         <div className="absolute top-6 lg:top-8 left-6 lg:left-8 z-20 no-print">
           <Link href="/" className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-accent transition-colors group">
             <div className="h-8 w-8 rounded bg-recessed shadow-recessed flex items-center justify-center group-hover:shadow-pressed transition-all">
@@ -107,9 +107,9 @@ export default function AIAdvisorPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* RECOMMENDATIONS */}
-              <div className="col-span-12 lg:col-span-7 space-y-6">
+              <div className="col-span-1 lg:col-span-7 space-y-6">
                  <h4 className="font-mono text-[10px] font-black uppercase tracking-widest flex items-center gap-2 opacity-60">
                    <ShieldAlert size={14} className="text-accent" /> Prioritized Mitigation Steps
                  </h4>
@@ -134,7 +134,7 @@ export default function AIAdvisorPage() {
               </div>
 
               {/* RISK PROFILE */}
-              <div className="col-span-12 lg:col-span-5 space-y-8">
+              <div className="col-span-1 lg:col-span-5 space-y-8">
                  <BoltedCard className="p-8 space-y-6" elevated>
                     <h4 className="font-black uppercase tracking-tight text-sm mb-2">Executive Risk Profile</h4>
                     <div className="flex items-center gap-3">

@@ -85,18 +85,21 @@ npm run dev
 
 ---
 
-## 🌌 The Industrial Aesthetic
-Our UI is built with a **Physical Design (Neumorphic)** aesthetic. It utilizes glassmorphic layers, CRT scanline effects, and interactive physical buttons to give the auditor a sense of high-stakes precision and manual control.
+## 🌌 Industrial Aesthetic & Ergonomics
+Our UI is built with a **Physical Design (Neumorphic)** aesthetic, optimized for both mission-critical desktop environments and frontline mobile access.
 
-- **Framer Motion 12**: Smooth, organic micro-interactions.
-- **Tailwind CSS 4**: Optimized for native compilation and complex shadows.
-- **Print Optics**: Hardened CSS for generating high-fidelity PDF manifests.
+- **Full Mobile Responsiveness**: A custom-built navigation drawer and adaptive grid system (grid-cols-1 to 12) ensure full audit capability on any device.
+- **Session Persistence**: Automated `localStorage` synchronization preserves audit progress and wizard states across refreshes or network drops.
+- **Framer Motion 12**: Smooth, organic micro-interactions and CRT scanline visual filters.
+- **Tailwind CSS 4**: Optimized for native compilation and high-fidelity depth effects.
+- **Print Optics**: Hardened CSS for generating high-fidelity, compliance-ready PDF manifests.
 
 ---
 
 ## 🏁 Roadmap
 - [x] **v2.1**: Live Cloud Run Deployment & SHAP Real-time Analysis.
-- [ ] **v2.5**: LLM-powered "AI Advisor" for remediation reasoning (Gemini 1.5 Integration).
+- [x] **v2.5**: AI Advisor Integration — Remediation reasoning & threshold simulation.
+- [x] **v2.8**: Production Hardening — Mobile responsiveness & state persistence.
 - [ ] **v3.0**: Federated Learning support for private-dataset auditing.
 
 ---

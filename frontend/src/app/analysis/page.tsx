@@ -49,9 +49,11 @@ export default function AnalysisPage() {
       setStagedFile(data.metadata?.filename || null);
       
       // Honoring the persistent stop flag
-      const storedStop = localStorage.getItem('aequitas_kernel_stopped') === 'true';
-      setIsStopped(storedStop);
-      setHasData(data.status === 'AUDITED' && !storedStop);
+      if (typeof window !== 'undefined') {
+        const storedStop = localStorage.getItem('aequitas_kernel_stopped') === 'true';
+        setIsStopped(storedStop);
+        setHasData(data.status === 'AUDITED' && !storedStop);
+      }
     } catch {
       // ignore
     }
@@ -106,19 +108,19 @@ export default function AnalysisPage() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden print:block print:h-auto print:overflow-visible">
-      <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
-      <AppSidebar footer={null} ledLabel="Engine: Analyzing" isOpen={isSidebarOpen} />
+    <div className="flex h-screen w-full bg-chassis overflow-hidden relative print:block print:h-auto print:overflow-visible">
+      <MobileHeader 
+        onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
+        title="Bias Explorer"
+      />
+      
+      <AppSidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)}
+        activeView="analysis"
+      />
 
-      {/* Mobile Overlay */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      <main className="flex-1 overflow-y-auto p-6 lg:p-10 bg-chassis relative print:block print:h-auto print:overflow-visible">
+      <main className="flex-1 overflow-y-auto p-6 pt-24 lg:p-10 lg:pt-10 bg-chassis relative print:block print:h-auto print:overflow-visible scroll-smooth">
         {/* KERNEL PROCESSING OVERLAY */}
         <AnimatePresence>
           {engineStatus === 'PROCESSING' && (
@@ -345,9 +347,9 @@ export default function AnalysisPage() {
               </BoltedCard>
             </div>
           ) : (
-            <div className="grid grid-cols-12 gap-6 print:flex print:flex-col">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 print:flex print:flex-col">
               {/* CORRELATION HEATMAP */}
-              <div className="col-span-12 lg:col-span-8 print-page-break">
+              <div className="col-span-1 lg:col-span-8 print-page-break">
               {loading || !corr ? (
                 <div className="col-span-12 lg:col-span-8">
                   <SkeletonCard className="h-[480px]" />
@@ -420,7 +422,7 @@ export default function AnalysisPage() {
           </div>
 
           {/* RIGHT SIDEBAR: proxy detection + group breakdown */}
-          <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+          <div className="col-span-1 lg:col-span-4 flex flex-col gap-6">
             {/* Bias Hotspot */}
             {topProxy ? (
               <BoltedCard className="p-6 flex flex-col gap-3" withVents={false}>

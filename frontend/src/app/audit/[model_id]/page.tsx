@@ -18,6 +18,7 @@ import { BoltedCard } from '@/components/ui/bolted-card';
 import { LEDIndicator } from '@/components/ui/led-indicator';
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { MobileHeader } from '@/components/layout/mobile-header';
 import { useToast } from '@/components/ui/toast';
 import { api, type AuditResult, type ThresholdPoint } from '@/lib/api';
 import Link from 'next/link';
@@ -32,6 +33,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -72,13 +74,14 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full overflow-hidden bg-chassis">
-        <AppSidebar ledLabel="Audit: Loading…" />
-        <main className="flex-1 p-12 overflow-y-auto space-y-8">
+      <div className="flex h-screen w-full bg-chassis overflow-hidden relative">
+        <MobileHeader onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} title="Loading Audit..." />
+        <AppSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} activeView="registry" />
+        <main className="flex-1 p-6 pt-24 lg:p-12 lg:pt-12 overflow-y-auto space-y-8">
           <div className="h-10 w-48 bg-recessed animate-shimmer rounded" />
-          <div className="grid grid-cols-12 gap-8">
-            <div className="col-span-12 lg:col-span-4"><SkeletonCard /></div>
-            <div className="col-span-12 lg:col-span-8"><SkeletonCard /></div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="col-span-1 lg:col-span-4"><SkeletonCard /></div>
+            <div className="col-span-1 lg:col-span-8"><SkeletonCard /></div>
           </div>
         </main>
       </div>
@@ -101,10 +104,18 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <AppSidebar ledLabel={`Audit: ${audit.status}`} />
+    <div className="flex h-screen w-full bg-chassis overflow-hidden relative">
+      <MobileHeader 
+        onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
+        title={`${model_id}`}
+      />
+      <AppSidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+        activeView="registry"
+      />
 
-      <main className="flex-1 overflow-y-auto p-12 bg-chassis relative">
+      <main className="flex-1 overflow-y-auto p-6 pt-24 lg:p-12 lg:pt-12 bg-chassis relative scroll-smooth">
         {/* Header */}
         <header className="flex justify-between items-start mb-12">
           <div className="flex flex-col gap-4">
@@ -128,9 +139,9 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
           </div>
         </header>
 
-        <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* LEFT COLUMN: CRITICAL STATS */}
-          <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
+          <div className="col-span-1 lg:col-span-4 flex flex-col gap-8">
             <BoltedCard elevated className="flex flex-col items-center p-8 gap-6">
               <span className="font-mono text-[10px] font-bold text-text-muted uppercase tracking-widest self-start">Fairness Score</span>
               <div className="relative h-40 w-40 flex items-center justify-center">
@@ -190,7 +201,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
           </div>
 
           {/* RIGHT COLUMN: GRAPHS & DETAILS */}
-          <div className="col-span-12 lg:col-span-8 flex flex-col gap-8">
+          <div className="col-span-1 lg:col-span-8 flex flex-col gap-8">
             {/* TRADEOFF CHART */}
             <BoltedCard className="flex-1 p-8 flex flex-col min-h-[400px]">
               <div className="flex justify-between items-center mb-10">
@@ -246,30 +257,32 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
                     <Users size={16} className="text-accent" /> Group-Level Selection Rates
                   </h3>
                </div>
-               <table className="w-full font-mono text-[10px]">
-                  <thead>
-                    <tr className="border-b border-border-shadow text-left text-text-muted tracking-widest uppercase">
-                       <th className="p-4 pl-8">Demographic Group</th>
-                       <th className="p-4">Selection Rate</th>
-                       <th className="p-4">DI Ratio</th>
-                       <th className="p-4 pr-8">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-shadow/40">
-                    {audit.groups.map((group) => (
-                      <tr key={group.group} className="hover:bg-panel/10 transition-colors">
-                        <td className="p-4 pl-8 font-bold">{group.group}</td>
-                        <td className="p-4">{(group.selection_rate * 100).toFixed(1)}%</td>
-                        <td className={cn("p-4 font-bold", group.impact < 0.8 ? "text-accent" : "text-green-600")}>
-                          {group.impact.toFixed(3)}
-                        </td>
-                        <td className="p-4 pr-8">
-                          <LEDIndicator status={group.below_threshold ? 'error' : 'online'} label={group.below_threshold ? 'FLAGGED' : 'OPTIMAL'} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-               </table>
+                <div className="overflow-x-auto">
+                   <table className="w-full font-mono text-[10px] min-w-[500px]">
+                      <thead>
+                        <tr className="border-b border-border-shadow text-left text-text-muted tracking-widest uppercase">
+                           <th className="p-4 pl-8">Demographic Group</th>
+                           <th className="p-4">Selection Rate</th>
+                           <th className="p-4">DI Ratio</th>
+                           <th className="p-4 pr-8">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border-shadow/40">
+                        {audit.groups.map((group) => (
+                          <tr key={group.group} className="hover:bg-panel/10 transition-colors">
+                            <td className="p-4 pl-8 font-bold">{group.group}</td>
+                            <td className="p-4">{(group.selection_rate * 100).toFixed(1)}%</td>
+                            <td className={cn("p-4 font-bold", group.impact < 0.8 ? "text-accent" : "text-green-600")}>
+                              {group.impact.toFixed(3)}
+                            </td>
+                            <td className="p-4 pr-8">
+                              <LEDIndicator status={group.below_threshold ? 'error' : 'online'} label={group.below_threshold ? 'FLAGGED' : 'OPTIMAL'} />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                   </table>
+                </div>
             </BoltedCard>
           </div>
         </div>

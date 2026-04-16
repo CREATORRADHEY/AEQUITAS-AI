@@ -1,0 +1,25 @@
+# .gcloudignore for Aequitas Frontend
+# This ensures gcloud uploads only necessary files, excluding local build artifacts.
+
+# Ignore everything by default
+*
+
+# Include source files
+!src/
+!public/
+!package.json
+!package-lock.json
+!next.config.ts
+!tsconfig.json
+!postcss.config.mjs
+!Dockerfile
+!.env*
+
+# Always ignore node_modules and .next local artifacts
+node_modules/
+.next/
+out/
+build/
+.git/
+.DS_Store
+*.log

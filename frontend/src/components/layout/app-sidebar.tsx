@@ -9,7 +9,8 @@ import {
   Database,
   Settings,
   BrainCircuit,
-  Activity
+  Activity,
+  X
 } from 'lucide-react';
 import { PhysicalButton } from '@/components/ui/physical-button';
 import { LEDIndicator } from '@/components/ui/led-indicator';
@@ -20,6 +21,7 @@ interface SidebarProps {
   onNavigate?: (view: 'wizard' | 'registry' | 'config' | 'analysis' | 'advisor') => void;
   activeView?: string;
   isProcessing?: boolean;
+  onClose?: () => void;
 }
 
 const NAV_ITEMS = [
@@ -29,20 +31,38 @@ const NAV_ITEMS = [
   { id: 'advisor',  label: 'AI Advisor',     Icon: BrainCircuit },
 ];
 
-export function AppSidebar({ isOpen, onNavigate, activeView, isProcessing }: SidebarProps) {
+export function AppSidebar({ isOpen, onNavigate, activeView, isProcessing, onClose }: SidebarProps) {
   return (
     <aside className={cn(
-      "w-72 shrink-0 border-r border-border-shadow bg-chassis flex-col gap-8 overflow-y-auto no-print AppSidebar fixed lg:sticky top-0 z-40 h-screen transition-transform duration-300 lg:translate-x-0",
+      "w-72 shrink-0 border-r border-border-shadow bg-chassis flex-col gap-8 overflow-y-auto no-print AppSidebar fixed lg:sticky top-0 z-[60] h-screen transition-transform duration-300 ease-in-out lg:translate-x-0",
       isOpen ? "translate-x-0 flex" : "-translate-x-full hidden lg:flex"
     )}>
-      {/* Logo */}
-      <div className="px-8 pt-8 flex items-center gap-3">
-        <div className="h-10 w-10 bg-accent rounded-lg flex items-center justify-center shadow-floating shrink-0 transition-transform hover:scale-105 active:scale-95">
-          <ShieldCheck className="text-white" size={22} />
+      {/* Mobile Backdrop - subtle overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/10 lg:hidden -z-10 backdrop-blur-sm" 
+          onClick={onClose}
+        />
+      )}
+      {/* Logo & Close Column */}
+      <div className="px-8 pt-8 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 bg-accent rounded-lg flex items-center justify-center shadow-floating shrink-0 transition-transform hover:scale-105 active:scale-95">
+            <ShieldCheck className="text-white" size={22} />
+          </div>
+          <h2 className="font-sans font-extrabold text-xl tracking-tighter uppercase">
+            AEQUITAS <span className="text-accent underline decoration-2 decoration-white/20 underline-offset-4">AI</span>
+          </h2>
         </div>
-        <h2 className="font-sans font-extrabold text-xl tracking-tighter uppercase">
-          AEQUITAS <span className="text-accent underline decoration-2 decoration-white/20 underline-offset-4">AI</span>
-        </h2>
+        
+        {/* Mobile-only Close toggle */}
+        <button 
+          onClick={onClose}
+          className="lg:hidden p-2 text-text-muted hover:text-accent transition-colors transition-transform active:scale-95"
+          aria-label="Close Sidebar"
+        >
+          <X className="w-6 h-6" />
+        </button>
       </div>
 
       {/* Nav */}
