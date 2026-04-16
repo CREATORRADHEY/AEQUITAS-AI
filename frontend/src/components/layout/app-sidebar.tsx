@@ -18,6 +18,7 @@ interface SidebarProps {
   /** Optional extra controls rendered at the bottom (e.g. Remediation Playbook) */
   footer?: React.ReactNode;
   ledLabel?: string;
+  isOpen?: boolean;
 }
 
 const NAV_ITEMS = [
@@ -27,11 +28,14 @@ const NAV_ITEMS = [
   { href: '/advisor',  label: 'AI Advisor',     Icon: ShieldCheck },
 ];
 
-export function AppSidebar({ footer, ledLabel = 'Kernel: Operational' }: SidebarProps) {
+export function AppSidebar({ footer, ledLabel = 'Kernel: Operational', isOpen }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-72 shrink-0 border-r border-border-shadow bg-chassis flex flex-col gap-8 overflow-y-auto no-print AppSidebar">
+    <aside className={cn(
+      "w-72 shrink-0 border-r border-border-shadow bg-chassis flex-col gap-8 overflow-y-auto no-print AppSidebar fixed lg:sticky top-0 z-40 h-screen transition-transform duration-300 lg:translate-x-0",
+      isOpen ? "translate-x-0 flex" : "-translate-x-full hidden lg:flex"
+    )}>
       {/* Logo */}
       <div className="px-8 pt-8 flex items-center gap-3">
         <div className="h-10 w-10 bg-accent rounded-lg flex items-center justify-center shadow-floating shrink-0">

@@ -4,19 +4,33 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Brain, ShieldAlert, Zap, Lock, ArrowLeft } from 'lucide-react';
 import { BoltedCard } from '@/components/ui/bolted-card';
+import { AppSidebar } from '@/components/layout/app-sidebar';
+import { MobileHeader } from '@/components/layout/mobile-header';
 import Link from 'next/link';
 
 export default function AIAdvisorPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
   return (
-    <div className="flex flex-col h-full bg-chassis">
-      <main className="flex-1 overflow-y-auto p-10 relative">
-        {/* Navigation */}
-        <div className="absolute top-8 left-8 z-20">
+    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden bg-chassis">
+      <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <AppSidebar ledLabel="Advisor: Neural Off" isOpen={isSidebarOpen} />
+
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
+        <div className="absolute top-6 lg:top-8 left-6 lg:left-8 z-20 no-print">
           <Link href="/" className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-accent transition-colors group">
             <div className="h-8 w-8 rounded bg-recessed shadow-recessed flex items-center justify-center group-hover:shadow-pressed transition-all">
               <ArrowLeft size={16} />
             </div>
-            Back to Dashboard
+            <span className="hidden sm:inline">Back to Dashboard</span>
           </Link>
         </div>
         {/* Background Decorative Element */}
@@ -46,7 +60,7 @@ export default function AIAdvisorPage() {
 
           {/* Heading */}
           <div className="space-y-4">
-            <h1 className="text-6xl font-black uppercase tracking-tighter">
+            <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">
               AI <span className="text-accent">Advisor</span>
             </h1>
             <div className="flex items-center justify-center gap-3">

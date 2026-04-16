@@ -12,6 +12,7 @@ import { BoltedCard } from '@/components/ui/bolted-card';
 import { LEDIndicator } from '@/components/ui/led-indicator';
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { MobileHeader } from '@/components/layout/mobile-header';
 import { useToast } from '@/components/ui/toast';
 import { api, type TelemetryData, type AuditHistoryItem } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -120,6 +121,7 @@ export default function Home() {
   const [selectedAudit, setSelectedAudit] = useState<AuditHistoryItem | null>(null);
   const [mounted, setMounted] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [engineStatus, setEngineStatus] = useState<'IDLE' | 'READY' | 'PROCESSING' | 'AUDITED'>('IDLE');
   const [stagedFile, setStagedFile] = useState<string | null>(null);
   const router = useRouter();
@@ -204,12 +206,21 @@ export default function Home() {
   });
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <AppSidebar footer={<RemediationPlaybook />} />
+    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden">
+      <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <AppSidebar footer={<RemediationPlaybook />} isOpen={isSidebarOpen} />
 
-      <main className="flex-1 overflow-y-auto p-10 bg-chassis relative">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 overflow-y-auto p-6 lg:p-10 bg-chassis relative">
         {/* Header */}
-        <header className="flex justify-between items-center mb-10">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight drop-shadow-[0_1px_1px_#ffffff]">
               Audit Overview
@@ -224,9 +235,10 @@ export default function Home() {
                 : 'AWAITING DATASET INGESTION…'}
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <PhysicalButton 
               variant="ghost" 
+              size="sm"
               onClick={() => router.push('/analysis')}
               className="gap-2 border-white/5 bg-white/5 hover:bg-white/10"
             >
@@ -234,6 +246,7 @@ export default function Home() {
             </PhysicalButton>
             <PhysicalButton 
               variant="primary" 
+              size="sm"
               onClick={() => setCoreStatusOpen(true)}
               className="gap-2"
             >
@@ -460,7 +473,8 @@ export default function Home() {
               <h3 className="font-bold uppercase tracking-tight">System Telemetry</h3>
               <LEDIndicator status={loadingHistory ? 'warning' : 'online'} label={loadingHistory ? 'Loading…' : `${history.length} Records`} />
             </div>
-            <table className="w-full font-mono text-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full font-mono text-xs min-w-[600px]">
               <thead>
                 <tr className="border-b border-border-shadow text-left text-text-muted tracking-widest">
                   <th className="p-4 pl-8 uppercase">Timestamp</th>
@@ -523,8 +537,9 @@ export default function Home() {
                 ))}
               </tbody>
             </table>
-          </BoltedCard>
-        </section>
+          </div>
+        </BoltedCard>
+      </section>
       </>
     )}
         

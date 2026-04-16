@@ -9,6 +9,7 @@ import { LEDIndicator } from '@/components/ui/led-indicator';
 import { SkeletonCard } from '@/components/ui/skeleton';
 import { UploadZone } from '@/components/ui/upload-zone';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { MobileHeader } from '@/components/layout/mobile-header';
 import { useToast } from '@/components/ui/toast';
 import { api, type GroupMetric, type ShapFeature, type CorrelationMatrix } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -38,6 +39,7 @@ export default function AnalysisPage() {
   const [engineStatus, setEngineStatus] = useState<'IDLE' | 'READY' | 'PROCESSING' | 'AUDITED'>('IDLE');
   const [stagedFile, setStagedFile] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchStatus = useCallback(async () => {
@@ -104,10 +106,19 @@ export default function AnalysisPage() {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden print:block print:h-auto print:overflow-visible">
-      <AppSidebar ledLabel="Engine: Analyzing" />
+    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden print:block print:h-auto print:overflow-visible">
+      <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <AppSidebar footer={null} ledLabel="Engine: Analyzing" isOpen={isSidebarOpen} />
 
-      <main className="flex-1 overflow-y-auto p-10 bg-chassis relative print:block print:h-auto print:overflow-visible">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 overflow-y-auto p-6 lg:p-10 bg-chassis relative print:block print:h-auto print:overflow-visible">
         {/* KERNEL PROCESSING OVERLAY */}
         <AnimatePresence>
           {engineStatus === 'PROCESSING' && (
@@ -234,7 +245,7 @@ export default function AnalysisPage() {
             </div>
           </BoltedCard>
         </div>
-        <header className="flex justify-between items-center mb-10 no-print">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 no-print">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight drop-shadow-[0_1px_1px_#ffffff]">
               Bias Explorer
@@ -243,7 +254,7 @@ export default function AnalysisPage() {
               DEEP SCAN: {MODEL_ID} / PEARSON CORRELATION + SHAP
             </p>
           </div>
-          <div className="flex gap-3 no-print">
+          <div className="flex flex-wrap gap-3 no-print">
             <PhysicalButton 
               size="sm" 
               variant={(engineStatus === 'AUDITED' && !isStopped) ? 'ghost' : 'primary'} 

@@ -19,6 +19,7 @@ import { PhysicalButton } from '@/components/ui/physical-button';
 import { BoltedCard } from '@/components/ui/bolted-card';
 import { LEDIndicator } from '@/components/ui/led-indicator';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { MobileHeader } from '@/components/layout/mobile-header';
 import { SkeletonRow } from '@/components/ui/skeleton';
 import { Modal } from '@/components/ui/modal';
 import { DataSlot } from '@/components/ui/data-slot';
@@ -36,6 +37,7 @@ export default function ModelRegistryPage() {
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [newModel, setNewModel] = useState({ id: '', type: 'Classifier', description: '' });
   const [registering, setRegistering] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchModels = useCallback(async () => {
@@ -90,11 +92,20 @@ export default function ModelRegistryPage() {
   });
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <AppSidebar ledLabel="Registry: Encrypted" />
+    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden">
+      <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <AppSidebar ledLabel="Registry: Encrypted" isOpen={isSidebarOpen} />
 
-      <main className="flex-1 overflow-y-auto p-12 bg-chassis relative">
-        <header className="flex justify-between items-center mb-12">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 overflow-y-auto p-6 lg:p-12 bg-chassis relative">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight drop-shadow-[0_1px_1px_#ffffff]">Model Registry</h1>
             <p className="font-mono text-sm text-text-muted mt-2">SECURE REPOSITORY / VERSION_SYNC: ON</p>
@@ -107,20 +118,20 @@ export default function ModelRegistryPage() {
         </header>
 
         <section className="flex flex-col gap-8">
-          <div className="flex justify-between items-center px-4">
-            <div className="flex items-center gap-4 px-6 py-2 bg-recessed rounded-xl shadow-recessed">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-4">
+            <div className="flex items-center gap-4 px-4 md:px-6 py-2 bg-recessed rounded-xl shadow-recessed w-full md:w-auto">
               <Search size={16} className="text-text-muted" />
               <input
                 type="text"
                 placeholder="Search registry..."
-                className="bg-transparent border-none outline-none font-mono text-xs w-64 p-2"
+                className="bg-transparent border-none outline-none font-mono text-xs flex-1 md:w-64 p-2"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full md:w-auto">
               <select 
-                className="bg-recessed text-[10px] font-mono font-bold py-1 px-3 rounded-lg shadow-recessed border-none outline-none appearance-none cursor-pointer"
+                className="flex-1 md:flex-none bg-recessed text-[10px] font-mono font-bold py-2 px-3 rounded-lg shadow-recessed border-none outline-none appearance-none cursor-pointer"
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
               >
@@ -132,7 +143,7 @@ export default function ModelRegistryPage() {
                 <option value="Clustering">CLUSTERING</option>
               </select>
               <select 
-                className="bg-recessed text-[10px] font-mono font-bold py-1 px-3 rounded-lg shadow-recessed border-none outline-none appearance-none cursor-pointer"
+                className="flex-1 md:flex-none bg-recessed text-[10px] font-mono font-bold py-2 px-3 rounded-lg shadow-recessed border-none outline-none appearance-none cursor-pointer"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >
@@ -145,7 +156,8 @@ export default function ModelRegistryPage() {
           </div>
 
           <BoltedCard className="p-0 overflow-hidden">
-            <table className="w-full font-mono text-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full font-mono text-xs min-w-[800px]">
               <thead>
                 <tr className="border-b border-border-shadow text-left text-text-muted tracking-widest bg-panel/30">
                   <th className="p-6 pl-10 uppercase">Model Identifier</th>
@@ -234,7 +246,8 @@ export default function ModelRegistryPage() {
                 </AnimatePresence>
               </tbody>
             </table>
-          </BoltedCard>
+          </div>
+        </BoltedCard>
         </section>
       </main>
 

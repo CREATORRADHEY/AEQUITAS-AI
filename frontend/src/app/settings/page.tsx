@@ -8,12 +8,14 @@ import { PhysicalButton } from '@/components/ui/physical-button';
 import { BoltedCard } from '@/components/ui/bolted-card';
 import { DataSlot } from '@/components/ui/data-slot';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { MobileHeader } from '@/components/layout/mobile-header';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const handleSave = () => {
     setSaving(true);
@@ -24,11 +26,20 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <AppSidebar ledLabel="System: Configuration" />
+    <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden">
+      <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <AppSidebar ledLabel="System: Configuration" isOpen={isSidebarOpen} />
 
-      <main className="flex-1 overflow-y-auto p-12 bg-chassis relative">
-        <header className="flex justify-between items-center mb-12">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 overflow-y-auto p-6 lg:p-12 bg-chassis relative">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight drop-shadow-[0_1px_1px_#ffffff]">System Configuration</h1>
             <p className="font-mono text-sm text-text-muted mt-2">INDUSTRIAL CONTROL PANEL / ROOT_ACCESS</p>
@@ -53,7 +64,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <DataSlot label="Fairness Threshold" defaultValue="0.80" type="number" step="0.01" />
                   <DataSlot label="Min. Sample Size" defaultValue="200" type="number" />
                 </div>
