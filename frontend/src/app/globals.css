@@ -52,11 +52,10 @@
 }
 
 /* 
-  BUG FIX: Scope physics easing to non-animated elements only.
-  The original global * rule was overriding Framer Motion's timing functions,
-  causing jerky animations on motion.div elements.
+  Industrial Physics Easing 
+  Targeted to specific cards to avoid build-time complexity 
 */
-*:not([style*="transform"]):not([data-projection-id]) {
+.physics-card {
   transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
