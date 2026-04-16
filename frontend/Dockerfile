@@ -2,7 +2,7 @@
 
 # Stage 1: Dependencies
 FROM node:20-slim AS deps
-RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y python3 make g++ libc6-compat && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package*.json ./
 # Use --legacy-peer-deps to handle React 19 / Next 15 / Framer-Motion / Lucide resolution conflicts
