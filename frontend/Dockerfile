@@ -5,18 +5,20 @@ FROM node:18-slim AS deps
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package*.json ./
-# Use --legacy-peer-deps to handle React 19 / Next 15 / Framer-Motion / Lucide resolution conflicts
+# Use --legacy-peer-deps to handle resolution conflicts
 RUN npm install --legacy-peer-deps
 
 # Stage 2: Builder
 FROM node:18-slim AS builder
 WORKDIR /app
+# Only copy node_modules and package files first to lock in the Linux binaries
+COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
+# Now copy the source - .dockerignore will prevent local Mac files from overwriting
+COPY . .
 ARG NODE_OPTIONS
 ENV NODE_OPTIONS=$NODE_OPTIONS
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
-# Ensure standalone output is generated
 RUN npm run build
 
 # Stage 3: Runner
