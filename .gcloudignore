@@ -1,0 +1,17 @@
+# Root .gcloudignore for SOLUTION CHALLENGE2026
+# This prevents global node_modules and artifacts from being uploaded
+
+.git
+.gitignore
+.DS_Store
+*.log
+
+# Ignore all node_modules recursively
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+
+# Project-specific logs
+backend/build_error.txt
+frontend/build_error.txt
