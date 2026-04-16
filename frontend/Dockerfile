@@ -11,6 +11,8 @@ RUN npm install --legacy-peer-deps
 # Stage 2: Builder
 FROM node:18-slim AS builder
 WORKDIR /app
+ARG NODE_OPTIONS
+ENV NODE_OPTIONS=$NODE_OPTIONS
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
