@@ -58,7 +58,28 @@ class AuditDatabase:
                     fairness_score REAL,
                     status TEXT DEFAULT 'NOT_AUDITED'
                 );
+                CREATE TABLE IF NOT EXISTS system_config (
+                    key TEXT PRIMARY KEY,
+                    value TEXT NOT NULL
+                );
             """)
+            # Seed default config if empty
+            rows = conn.execute("SELECT COUNT(*) FROM system_config").fetchone()[0]
+            if rows == 0:
+                defaults = [
+                    ("fairness_threshold", "0.80"),
+                    ("min_sample_size", "200"),
+                    ("statistical_engine", "CHI-SQUARE (DEFAULT)"),
+                    ("slack_webhook", "https://hooks.slack.com/services/..."),
+                    ("compliance_email", "legal-audit@company.com"),
+                    ("node_id", "AEQ_772_PROD"),
+                    ("region", "US-CENTRAL-1 (BOLTED)"),
+                    ("security_level", "FIPS 140-2 LEVEL 3"),
+                    ("access_key", "********-****-4211"),
+                    ("include_raw_samples", "true"),
+                    ("sign_report", "true")
+                ]
+                conn.executemany("INSERT INTO system_config (key, value) VALUES (?, ?)", defaults)
 
     # ── Write ──────────────────────────────────────────────────────────────────
 
@@ -101,6 +122,22 @@ class AuditDatabase:
     def delete_audit_history(self, audit_id: int):
         with sqlite3.connect(self.db_path) as conn:
             conn.execute("DELETE FROM audit_history WHERE id = ?", (audit_id,))
+
+    # ── Config ──────────────────────────────────────────────────────────────────
+
+    def get_system_config(self) -> Dict[str, str]:
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute("SELECT key, value FROM system_config")
+            return {row[0]: row[1] for row in cursor.fetchall()}
+
+    def update_system_config(self, settings: Dict[str, str]):
+        with sqlite3.connect(self.db_path) as conn:
+            for key, value in settings.items():
+                conn.execute(
+                    "INSERT INTO system_config (key, value) VALUES (?, ?) "
+                    "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                    (key, str(value)),
+                )
 
     def register_model(self, model_id: str, model_type: str = "Classifier", description: str = ""):
         ts = datetime.utcnow().isoformat() + "Z"
@@ -173,6 +210,9 @@ class FairnessEngine:
         self.status = "IDLE"  # IDLE, READY, PROCESSING, AUDITED
         self.current_df: Optional[pd.DataFrame] = None
         self.metadata: Dict[str, Any] = {}
+        
+        # Load system config
+        self.config = self.db.get_system_config()
         
         # Internal ML state
         self._model = None
@@ -600,14 +640,50 @@ class FairnessEngine:
         privileged_group: str,
         dataset_name: str = "",
     ) -> Dict:
+        # Load latest config for real-time compliance
+        self.config = self.db.get_system_config()
+        threshold = float(self.config.get("fairness_threshold", 0.80)) * 100
+        
+        # Core fairness computations
         groups = self.calculate_group_metrics(df, protected_attr, outcome_attr, privileged_group)
         score = self.calculate_overall_fairness_score(groups)
         flags = [g["group"] for g in groups if g["below_threshold"]]
-        status = "PASS" if score >= 90 else "PASS_WITH_WARNINGS" if score >= 75 else "FAIL"
+        
+        # Status driven by dynamic threshold
+        # PASS: score >= threshold + 10 (Strict)
+        # PASS_WITH_WARNINGS: score >= threshold
+        # FAIL: score < threshold
+        status = "PASS" if score >= (threshold + 10) else "PASS_WITH_WARNINGS" if score >= threshold else "FAIL"
+
+        # Certification Logic
+        risk_level = "SAFE" if score >= (threshold + 10) else "MEDIUM" if score >= threshold else "CRITICAL"
+        
+        # Proxy Detection
+        proxy_data = self.compute_shap_importance(df)
+        proxy_features = [f["feature"] for f in proxy_data if f["is_proxy"]]
+        
+        # Dynamic Recommendations
+        recommendations = []
+        if score < (threshold + 15):
+            recommendations.append("Adjust probability threshold to optimize fairness/accuracy trade-off")
+        if flags:
+            recommendations.append(f"Review data collection for protected groups: {', '.join(flags)}")
+        if proxy_features:
+            recommendations.append(f"Consider removing or masking proxy features: {', '.join(proxy_features)}")
+        if score < threshold:
+            recommendations.append("Critical bias detected. Immediate re-weighting or model retraining required.")
+        
+        if not recommendations:
+            recommendations.append("Maintain current monitoring schedule.")
 
         metrics: Dict[str, Any] = {
             "overall_fairness_score": score,
             "status": status,
+            "risk_level": risk_level,
+            "bias_detected": bool(flags),
+            "sensitive_feature": protected_attr,
+            "proxy_features": proxy_features,
+            "recommendations": recommendations,
             "groups": groups,
             "flags": flags,
             "privileged_group": privileged_group,

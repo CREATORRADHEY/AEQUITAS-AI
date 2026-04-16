@@ -527,7 +527,7 @@ export default function AnalysisPage() {
             </div>
           </div>
           <div className="text-right font-mono text-[10px]">
-            © {new Date().getFullYear()} — AEQUITAS INDUSTRIAL CORE
+            © {mounted ? new Date().getFullYear() : '2026'} — AEQUITAS INDUSTRIAL CORE
           </div>
         </footer>
       </main>

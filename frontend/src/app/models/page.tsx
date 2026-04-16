@@ -91,6 +91,9 @@ export default function ModelRegistryPage() {
     return matchesSearch && matchesType && matchesStatus;
   });
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   return (
     <div className="flex flex-col lg:flex-row h-screen w-full overflow-hidden">
       <MobileHeader isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
@@ -207,7 +210,7 @@ export default function ModelRegistryPage() {
                           </span>
                         </td>
                         <td className="p-6 opacity-60 italic">
-                          {model.last_audit ? new Date(model.last_audit).toLocaleDateString() : 'Never'}
+                          {mounted && model.last_audit ? new Date(model.last_audit).toLocaleDateString() : model.last_audit ? '...' : 'Never'}
                         </td>
                         <td className="p-6">
                           <div className="flex items-center gap-2">

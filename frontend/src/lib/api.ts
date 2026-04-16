@@ -3,7 +3,11 @@
  * All backend calls go through this module for consistent error handling and typing.
  */
 
-const BASE_URL = 'https://aequitas-backend-687756290895.us-central1.run.app';
+// Deployment Config
+const DEFAULT_URL = 'https://aequitas-backend-687756290895.us-central1.run.app';
+const BASE_URL = typeof window !== 'undefined' 
+  ? (process.env.NEXT_PUBLIC_API_URL || DEFAULT_URL)
+  : DEFAULT_URL;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -22,6 +26,10 @@ export interface TelemetryData {
   groups: GroupMetric[];
   total_records: number;
   n_violations: number;
+  active_mitigation?: {
+    strategy: string | null;
+    params: Record<string, any>;
+  };
   timestamp: string;
 }
 
@@ -39,6 +47,11 @@ export interface AuditResult {
   model_id: string;
   overall_fairness_score: number;
   status: string;
+  risk_level: 'SAFE' | 'MEDIUM' | 'CRITICAL';
+  bias_detected: boolean;
+  sensitive_feature: string;
+  proxy_features: string[];
+  recommendations: string[];
   groups: GroupMetric[];
   flags: string[];
   privileged_group: string;
@@ -97,11 +110,15 @@ export interface AuditHistoryItem {
 // ─── Fetcher ─────────────────────────────────────────────────────────────────
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const url = `${BASE_URL.replace(/\/$/, '')}${path}`;
   try {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch(url, {
+      headers: options?.body instanceof FormData 
+        ? {} 
+        : { 'Content-Type': 'application/json' },
       ...options,
     });
+    
     if (!res.ok) {
       const body = await res.text();
       let errorMsg = `API ${res.status}`;
@@ -111,12 +128,16 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
       } catch {
         errorMsg = body || errorMsg;
       }
+      // Log more context for 404s to help debugging
+      if (res.status === 404) {
+        console.error(`[Aequitas API] 404 Not Found at: ${url}`);
+      }
       throw new Error(errorMsg);
     }
     return res.json() as Promise<T>;
-  } catch (err) {
-    if (err instanceof TypeError && err.message === 'Failed to fetch') {
-      throw new Error('Kernel Offline: Check if backend is running at http://localhost:8000');
+  } catch (err: any) {
+    if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+      throw new Error(`Kernel Offline: Could not reach ${BASE_URL}. Ensure backend is running.`);
     }
     throw err;
   }
@@ -144,25 +165,35 @@ export const api = {
 
   /** Register a new model */
   registerModel: (model_id: string, model_type: string, description: string) =>
-    apiFetch<{ status: string; model_id: string }>('/models/register', {
+    apiFetch<{ status: string; model_id: string }>('/models', {
       method: 'POST',
       body: JSON.stringify({ model_id, model_type, description }),
     }),
 
-  /** Full audit for a model (uses demo dataset) */
-  getAudit: (modelId: string, privilegedGroup = 'White') =>
-    apiFetch<AuditResult>(`/audit/${modelId}?privileged_group=${privilegedGroup}`),
+  /** Full audit for a model (uses demo dataset or current staged data) */
+  getAudit: (modelId: string, privilegedGroup = 'White', protectedAttr?: string, outcomeAttr?: string) => {
+    // Backend expects /audit with query params, not /audit/{modelId}
+    let url = `/audit?model_id=${encodeURIComponent(modelId)}&privileged_group=${encodeURIComponent(privilegedGroup)}`;
+    if (protectedAttr) url += `&protected_attribute=${encodeURIComponent(protectedAttr)}`;
+    if (outcomeAttr) url += `&outcome_attribute=${encodeURIComponent(outcomeAttr)}`;
+    return apiFetch<AuditResult>(url);
+  },
+
+  /** Generate and fetch the high-fidelity PDF report */
+  getAuditReport: async (modelId: string, protectedAttr: string, outcomeAttr: string): Promise<Blob> => {
+    const url = `${BASE_URL.replace(/\/$/, '')}/audit/report/${modelId}?protected_attr=${encodeURIComponent(protectedAttr)}&outcome_attr=${encodeURIComponent(outcomeAttr)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to generate report');
+    return res.blob();
+  },
 
   /** Upload CSV for audit (Stages data) */
   uploadCsv: (file: File, modelId = 'UPLOADED_MODEL', privilegedGroup = 'White') => {
     const form = new FormData();
     form.append('file', file);
-    return fetch(
-      `${BASE_URL}/audit/upload?model_id=${modelId}&privileged_group=${privilegedGroup}`,
-      { method: 'POST', body: form }
-    ).then((r) => {
-      if (!r.ok) throw new Error(`Upload failed: ${r.status}`);
-      return r.json();
+    return apiFetch<any>(`/audit/upload?model_id=${modelId}&privileged_group=${privilegedGroup}`, {
+      method: 'POST',
+      body: form,
     });
   },
 
@@ -196,4 +227,28 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ threshold, reweight_factor }),
     }),
+
+  /** Get system production configuration */
+  getConfig: () => apiFetch<Record<string, string>>('/config'),
+
+  /** Update system production configuration */
+  updateConfig: (settings: Record<string, string>) =>
+    apiFetch<{ status: string }>('/config', {
+      method: 'PATCH',
+      body: JSON.stringify({ settings }),
+    }),
 };
+
+/**
+ * Trigger a file download in the browser
+ */
+export function downloadFile(blob: Blob, filename: string) {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}

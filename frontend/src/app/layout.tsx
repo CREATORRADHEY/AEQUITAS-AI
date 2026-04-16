@@ -11,13 +11,13 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full antialiased crt-screen">
+    <html lang="en" className="h-full antialiased crt-screen" suppressHydrationWarning={true}>
       {/* Font preconnect to eliminate FOUT */}
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning={true}>
         <ToastProvider>
           {children}
         </ToastProvider>

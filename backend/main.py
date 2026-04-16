@@ -134,9 +134,15 @@ async def register_model(req: RegisterModelRequest):
 
 
 @app.get("/audit/{model_id}", tags=["audit"])
-async def get_audit(model_id: str, privileged_group: str = Query("White")):
+async def get_model_audit(
+    model_id: str, 
+    privileged_group: str = Query("White"),
+    protected_attr: Optional[str] = Query(None),
+    outcome_attr: Optional[str] = Query(None)
+):
     """
-    Run a full fairness audit on the current staged dataset.
+    Perform audit on a specific model using the fairness kernel.
+    Defaults to 'race' and 'loan_approved' if not specified.
     """
     if engine.current_df is None:
         raise HTTPException(status_code=400, detail="No dataset staged. Upload a CSV first.")
@@ -144,8 +150,8 @@ async def get_audit(model_id: str, privileged_group: str = Query("White")):
     result = engine.run_full_audit(
         df=engine.current_df,
         model_id=model_id,
-        protected_attr="race",
-        outcome_attr="loan_approved",
+        protected_attr=protected_attr or "race",
+        outcome_attr=outcome_attr or "loan_approved",
         privileged_group=privileged_group,
         dataset_name=engine.metadata.get("filename", "active_audit"),
     )
@@ -317,6 +323,129 @@ async def apply_remediation(req: RemediateRequest):
             "reweight_factor": req.reweight_factor
         }
     }
+
+
+from fastapi import Response
+
+class ConfigUpdate(BaseModel):
+    settings: Dict[str, str]
+
+@app.get("/config", tags=["system"])
+async def get_config():
+    """Get the current system production configuration."""
+    return engine.db.get_system_config()
+
+@app.patch("/config", tags=["system"])
+async def update_config(payload: ConfigUpdate):
+    """Update global system settings."""
+    engine.db.update_system_config(payload.settings)
+    # Reload engine config cache
+    engine.config = engine.db.get_system_config()
+    return {"status": "SUCCESS", "updated": list(payload.settings.keys())}
+
+
+@app.get("/audit/report/{model_id}", tags=["audit"])
+async def get_audit_report(
+    model_id: str,
+    protected_attr: str = Query(...),
+    outcome_attr: str = Query(...)
+):
+    """Generate a high-fidelity PDF audit report with dynamic branding."""
+    history = engine.db.get_audit_history(model_id=model_id, limit=1)
+    if not history:
+        raise HTTPException(status_code=404, detail="Audit history not found for this model")
+    
+    audit = history[0]
+    config = engine.db.get_system_config()
+    
+    from fpdf import FPDF
+    
+    class PDFReport(FPDF):
+        def header(self):
+            self.set_fill_color(245, 245, 245)
+            self.rect(0, 0, 210, 40, 'F')
+            self.set_font("helvetica", "B", 15)
+            self.set_text_color(220, 38, 38) # Aequitas Red
+            self.cell(0, 20, "AEQUITAS AI — FAIRNESS CERTIFICATION REPORT", align='C', ln=True)
+            self.set_font("helvetica", "B", 8)
+            self.set_text_color(100, 100, 100)
+            node_id = config.get("node_id", "AEQ_772_PROD")
+            region = config.get("region", "US-CENTRAL-1")
+            self.cell(0, 5, f"NODE: {node_id} | REGION: {region} | CLASSIFICATION: PROPRIETARY/INDUSTRIAL", align='C', ln=True)
+            self.ln(10)
+
+        def footer(self):
+            self.set_y(-15)
+            self.set_font("helvetica", "I", 8)
+            self.cell(0, 10, f"Page {self.page_no()} | Digital Fingerprint: {config.get('access_key', 'PROTECTED')}", align='C')
+
+    pdf = PDFReport()
+    pdf.add_page()
+    
+    # Audit Header
+    pdf.set_font("helvetica", "B", 20)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 15, f"Model ID: {model_id}", ln=True)
+    pdf.set_font("helvetica", "B", 10)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 5, f"Audit Timestamp: {audit['timestamp']}", ln=True)
+    pdf.ln(10)
+
+    # Executive Summary Box
+    pdf.set_fill_color(240, 240, 240)
+    pdf.rect(10, 65, 190, 40, 'F')
+    pdf.set_xy(15, 70)
+    pdf.set_font("helvetica", "B", 14)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 10, "Executive Summary", ln=True)
+    pdf.set_font("helvetica", "", 11)
+    score = audit['metrics']['overall_fairness_score']
+    status = audit['status']
+    risk = audit['metrics']['risk_level']
+    pdf.multi_cell(0, 7, f"The model achieved a fairness score of {score:.1f}/100. "
+                         f"Final Certification Status: {status}. "
+                         f"Risk Level: {risk}.")
+    pdf.ln(20)
+
+    # Metrics Section
+    pdf.set_font("helvetica", "B", 14)
+    pdf.cell(0, 10, "Audit Diagnostics", ln=True)
+    pdf.set_font("helvetica", "", 11)
+    pdf.multi_cell(0, 7, f"This audit was performed on a dataset of {audit['metrics']['n_samples']} samples. "
+                         f"The protected attribute analyzed was '{audit['metrics']['protected_attribute']}' "
+                         f"with '{audit['metrics']['privileged_group']}' as the privileged reference group.")
+    pdf.ln(10)
+    
+    # Recommendations
+    pdf.set_font("helvetica", "B", 14)
+    pdf.cell(0, 10, "Actionable Recommendations", ln=True)
+    pdf.set_font("helvetica", "I", 11)
+    for rec in audit['metrics'].get("recommendations", []):
+        pdf.multi_cell(0, 7, f"- {rec}")
+    pdf.ln(10)
+    
+    # Proxy Detection
+    if audit['metrics'].get("proxy_features"):
+        pdf.set_font("helvetica", "B", 14)
+        pdf.cell(0, 10, "Proxy Feature Identification", ln=True)
+        pdf.set_font("helvetica", "", 11)
+        pdf.multi_cell(0, 7, f"The SHAP kernel identified the following features as potential proxies "
+                             f"for bias: {', '.join(audit['metrics']['proxy_features'])}. These should be monitored "
+                             "for disparate impact in production.")
+    
+    # Footer
+    pdf.set_y(-30)
+    pdf.set_font("helvetica", "I", 8)
+    pdf.set_text_color(150, 150, 150)
+    pdf.cell(0, 10, "Aequitas AI v2.0.0 — Google Solution Challenge 2026 Submission", align='C')
+
+    pdf_bytes = pdf.output()
+    
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=Aequitas_Audit_{model_id}.pdf"}
+    )
 
 
 @app.delete("/history/{audit_id}", tags=["telemetry"])

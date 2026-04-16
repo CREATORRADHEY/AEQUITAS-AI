@@ -31,7 +31,12 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
   const [tradeoff, setTradeoff] = useState<ThresholdPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -149,7 +154,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
               <div className="grid grid-cols-2 w-full gap-4 text-center">
                 <div className="p-3 bg-recessed/50 rounded-lg shadow-recessed">
                   <p className="font-mono text-[9px] font-bold text-text-muted uppercase mb-1">Samples</p>
-                  <p className="font-bold text-lg">{audit.n_samples.toLocaleString()}</p>
+                  <p className="font-bold text-lg">{mounted ? audit.n_samples.toLocaleString() : '...'}</p>
                 </div>
                 <div className="p-3 bg-recessed/50 rounded-lg shadow-recessed">
                   <p className="font-mono text-[9px] font-bold text-text-muted uppercase mb-1">Flags</p>
@@ -178,7 +183,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ model_id
                  </div>
                  <div className="flex justify-between border-b border-border-shadow/30 pb-2">
                     <span className="text-text-muted">LAST AUDIT</span>
-                    <span className="font-bold uppercase">{new Date(audit.timestamp).toLocaleDateString()}</span>
+                    <span className="font-bold uppercase">{mounted ? new Date(audit.timestamp).toLocaleDateString() : '...'}</span>
                  </div>
               </div>
             </BoltedCard>

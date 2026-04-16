@@ -1,0 +1,21 @@
+# Ironclad GCloud Ignore for Aequitas Backend
+# This file ensures that Google Cloud sees our code regardless of .gitignore
+
+# Reset: Ignore everything first
+*
+
+# Inclusion: FORCE INCLUDE the critical files
+!main.py
+!engine.py
+!requirements.txt
+!Dockerfile
+!data/
+!data/aequitas.db
+
+# Persistent Exclusion
+__pycache__/
+*.pyc
+venv/
+.env
+.git/
+tests/

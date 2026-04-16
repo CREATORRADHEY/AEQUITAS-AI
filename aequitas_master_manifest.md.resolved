@@ -1,0 +1,73 @@
+# Aequitas AI — Project Master Manifest (NotebookLM Edition)
+
+**Project Name**: Aequitas AI Fairness Toolkit  
+**Status**: Production-Ready / Operational  
+**Live URL**: https://aequitas-frontend-687756290895.us-central1.run.app  
+**Submission**: Google Solution Challenge 2026
+
+---
+
+## 1. Executive Summary
+Aequitas AI is a mission-critical, full-stack AI fairness auditing platform designed to dismantle the "Black Box" nature of machine learning. It provides developers, data scientists, and executives with high-fidelity tools to detect, explain, and mitigate algorithmic bias in real-time.
+
+---
+
+## 2. Problem Statement
+As AI scales globally, algorithmic bias disproportionately affects marginalized groups in areas like lending, hiring, and healthcare. Existing tools are often too academic, hard to use, or provide "one-off" fixes. Aequitas AI solves this by providing a continuous, industrial-grade audit pipeline.
+
+---
+
+## 3. Core Features & Capabilities
+
+### 🔍 Bias Detection & Explainability
+- **Disparate Impact Monitor**: Automatically computes the 4/5ths rule and statistical parity across protected groups (Race, Gender, Age).
+- **SHAP (SHapley Additive exPlanations)**: Utilizes game-theoretic decomposition to show exactly which features are driving a model's decisions.
+- **Proxy Detection**: Detects "hidden" discrimination by finding latent correlations between neutral features and protected groups using Cramér's V.
+
+### ⚖️ Mitigation & Remediation
+- **Remediation Playbook**: A simulated sandbox where users can test threshold adjustments and re-weighting strategies to move models toward parity.
+- **AI Advisor (Phase 2)**: Generative reasoning engine to provide human-centered remediation steps (Gemini 1.5 Integration).
+
+### 📄 Industrial Reporting
+- **Audit Manifests**: Generates hardened, print-optimized PDF reports for legal and executive compliance reviews.
+- **Model Wellness Dashboard**: A high-level view of model health, tracking "Bias Drift" and overall fairness metrics.
+
+---
+
+## 4. Technical Architecture
+
+### **Front-End (The Observability Layer)**
+- **Framework**: Next.js 16 (React 19)
+- **Styling**: Tailwind CSS & Neumorphic Design Patterns.
+- **Animations**: Framer Motion for smooth, high-stakes micro-interactions.
+- **Infrastructure**: Deployed on Google Cloud Run with 4GB build-memory optimization.
+
+### **Back-End (The Fairness Kernel)**
+- **Framework**: FastAPI (Python 3.10)
+- **Engine**: Custom `FairnessEngine` built with Scikit-learn, Pandas, and SHAP.
+- **Persistence**: SQLite-based Audit Store.
+- **Infrastructure**: Deployed on Google Cloud Run using Multi-stage Docker builds.
+
+---
+
+## 5. Design Aesthetic: "Physical AI"
+Aequitas AI uses a unique **Neumorphic / Glassmorphic** aesthetic. 
+- **The Concept**: Makes digital AI audits feel "physical" and "manual," like operating industrial machinery.
+- **Visual Cues**: Pressed buttons, glowing LED indicators (Operational/Offline), glass layers, and high-contrast telemetry tables.
+
+---
+
+## 6. Implementation Detail: The "Hardwire" Connectivity
+To ensure perfect reliability for the Solution Challenge, the frontend is hard-connected to the backend via a secure production URL (`https://aequitas-backend-687756290895.us-central1.run.app`), bypassing common build-time environment variable failures.
+
+---
+
+## 7. Roadmap & Future Vision
+- **v2.5 (Gemini Integration)**: Automated fairness reasoning.
+- **v3.0 (Federated Auditing)**: Allowing companies to audit models without sharing sensitive raw data.
+- **Global Scale**: Expansion of the "Fairness-as-a-Service" (FaaS) model.
+
+---
+
+**Built with ❤️ for AI Accountability.**  
+*Google Solution Challenge 2026 Submission.*
