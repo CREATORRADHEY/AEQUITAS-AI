@@ -1,0 +1,30 @@
+steps:
+  # Step 1: Build the container image using the high-memory machine
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '--build-arg', 'NODE_OPTIONS=--max-old-space-size=4096',
+      '-t', 'gcr.io/$PROJECT_ID/aequitas-frontend:$BUILD_ID',
+      '-t', 'gcr.io/$PROJECT_ID/aequitas-frontend:latest',
+      '.'
+    ]
+    dir: 'frontend'
+
+  # Step 2: Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/aequitas-frontend:latest']
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run', 'deploy', 'aequitas-frontend',
+      '--image', 'gcr.io/$PROJECT_ID/aequitas-frontend:latest',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--allow-unauthenticated'
+    ]
+
+options:
+  # REQUEST HIGH PERFORMANCE MACHINE (8 vCPUs, High Memory)
+  machineType: 'E2_HIGHCPU_8'
