@@ -1,31 +1,28 @@
-# ATOMIC Hardened Dockerfile for Aequitas
-# This version uses the "Atomic Build" strategy:
-# 1. Sync all source code first.
-# 2. Wipe any leaked Mac node_modules natively.
-# 3. Perform a ground-up Linux install as the final pre-build step.
+# DIRECT INJECTION Hardened Dockerfile
+# This version explicitly forces the installation of Linux native bindings
+# to bypass the persistent npm architecture resolution bug.
 
 FROM node:18
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-# Step 1: Sync Source Code
-# We copy EVERYTHING first so we have the full context.
+# Step 1: Sync and Wipe
 COPY . .
-
-# Step 2: ATOMIC WIPE
-# We delete everything that could have leaked from the Mac environment
-# natively within the Linux filesystem.
 RUN rm -rf node_modules package-lock.json
 
-# Step 3: Native Linux Install
-# Since we deleted package-lock, npm is forced to resolve correctly for Linux x64.
-ENV npm_config_arch=x64
-ENV npm_config_platform=linux
+# Step 2: Architecture Injection
+# We force-install the exact Linux binaries needed by Tailwind 4 and Next.js 15
 RUN npm install --legacy-peer-deps
+RUN npm install @tailwindcss/oxide-linux-x64-gnu lightningcss-linux-x64-gnu --save-optional --legacy-peer-deps
 
-# Step 4: Verification
-# This confirms the native bindings for Tailwind Oxide/LightningCSS exist
-RUN find node_modules/@tailwindcss -name "*.node" || echo "Oxide binary not found"
+# Step 3: Forced Rebuild
+# This ensures the .node bindings are correctly registered for the Linux kernel
+RUN npm rebuild @tailwindcss/oxide lightningcss
+
+# Step 4: Final Verification
+# If these don't show up in the logs, we have a filesystem sync issue in Cloud Build
+RUN ls -R node_modules/@tailwindcss/oxide-linux-x64-gnu || echo "Oxide binary STILL missing"
+RUN ls -R node_modules/lightningcss-linux-x64-gnu || echo "LightningCSS binary STILL missing"
 
 # Step 5: Build
 ARG NODE_OPTIONS
