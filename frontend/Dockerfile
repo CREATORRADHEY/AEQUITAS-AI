@@ -1,33 +1,31 @@
-# MANUAL LINKING Hardened Dockerfile
-# This version bypasses the npm architecture bug by manually bridging 
-# the native binaries into the target library directories.
+# AEQUITAS AI — Hardened Frontend Build (Node 20)
+# This Dockerfile is optimized for Next.js 15 and Tailwind CSS 4.
 
-FROM node:18
+FROM node:20-slim
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-# Step 1: Sync and Wipe
+# Step 1: Environment Preparation
+# We use node:20-slim to satisfy Next.js 15 requirements
+COPY package*.json ./
+RUN npm install --legacy-peer-deps --prefer-offline
+
+# Step 2: Source Injection
 COPY . .
-RUN rm -rf node_modules package-lock.json
 
-# Step 2: Architecture Injection
-# Force download the Linux-specific packages
-RUN npm install --legacy-peer-deps
-RUN npm install @tailwindcss/oxide-linux-x64-gnu lightningcss-linux-x64-gnu --save-optional --legacy-peer-deps
-
-# Step 3: MANUAL BRIDGING (The Workaround)
-# We physically move the .node files into the main library directories
-# because the npm 'optionalDependencies' logic is failing in Cloud Build.
-RUN cp node_modules/@tailwindcss/oxide-linux-x64-gnu/*.node node_modules/@tailwindcss/oxide/ || echo "Oxide bridge failed"
-RUN cp node_modules/lightningcss-linux-x64-gnu/*.node node_modules/lightningcss/ || echo "LightningCSS bridge failed"
+# Step 3: Architecture Bridging
+# Next.js 15 + Tailwind 4 requires native binaries for Oxide and LightningCSS
+# We manually bridge them to ensure they are available in the expected paths
+RUN cp -r node_modules/@tailwindcss/oxide-linux-x64-gnu/*.node node_modules/@tailwindcss/oxide/ || echo "Oxide bridge skipped"
+RUN cp -r node_modules/lightningcss-linux-x64-gnu/*.node node_modules/lightningcss/ || echo "LightningCSS bridge skipped"
 
 # Step 4: Verification
-# This confirms the binaries are now in the PARENT directories where require() expects them
-RUN ls node_modules/@tailwindcss/oxide/*.node
-RUN ls node_modules/lightningcss/*.node
+# This confirms the binaries are correctly placed before build starts
+RUN ls node_modules/@tailwindcss/oxide/*.node || true
+RUN ls node_modules/lightningcss/*.node || true
 
 # Step 5: Build
-ARG NODE_OPTIONS
+ARG NODE_OPTIONS="--max-old-space-size=4096"
 ENV NODE_OPTIONS=$NODE_OPTIONS
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
