@@ -74,50 +74,35 @@ function heatmapColor(val: number): string {
 /** STEP 0: Landing Screen */
 function LandingScreen({ onNext }: { onNext: (fileData: any) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-12 py-10">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-12 py-10 px-4">
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-4"
       >
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent font-mono text-[10px] font-bold uppercase tracking-widest mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-4">
           <Sparkles size={12} /> Version 2.0 — Production Ready
         </div>
-        <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
           AI Audit Engine for <br />
-          <span className="text-accent drop-shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]">Fairness Certification</span>
+          <span className="text-accent drop-shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)] text-3xl sm:text-5xl md:text-7xl">Fairness Certification</span>
         </h1>
-        <p className="text-text-muted font-mono text-sm max-w-xl mx-auto uppercase">
+        <p className="text-text-muted font-mono text-[10px] sm:text-sm max-w-xl mx-auto uppercase tracking-tighter sm:tracking-normal mt-4">
           Upload your model dataset. Get a fairness score, 
           risk assessment, and compliance report in minutes.
         </p>
       </motion.div>
 
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-2xl px-2 sm:px-0">
         <UploadZone onAuditComplete={onNext} />
         <div className="mt-8 flex justify-center gap-4">
           <PhysicalButton 
             variant="ghost" 
-            className="gap-2 text-[10px] font-mono text-text-muted" 
-            onClick={() => onNext({ filename: 'Sample_Alpha_Core', size: '2.4MB', mock: true })}
+            className="text-[10px] uppercase font-bold tracking-widest px-6"
           >
-             Try Sample Dataset
+            Documentation
           </PhysicalButton>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl pt-10 border-t border-border-shadow/30">
-        {[
-          { icon: Lock, label: 'Salted Privacy', desc: 'Differential privacy filters active' },
-          { icon: Cpu, label: 'Bias Detection', desc: 'SHAP-based proxy identification' },
-          { icon: Activity, label: 'Live Metrics', desc: 'Real-time group parity analysis' }
-        ].map((feat, i) => (
-          <div key={feat.label} className="text-center space-y-2 opacity-60 px-4">
-            <feat.icon size={20} className="mx-auto text-accent mb-2" />
-            <div className="font-bold text-[10px] uppercase truncate">{feat.label}</div>
-            <div className="text-[10px] font-mono text-text-muted leading-relaxed">{feat.desc}</div>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -133,10 +118,10 @@ function ConfigScreen({ fileData, onBack, onStartAudit }: { fileData: any, onBac
   });
 
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-xl mx-auto space-y-10 py-10">
-      <div className="space-y-2">
-        <h2 className="text-3xl font-black uppercase tracking-tighter">Configure Engine</h2>
-        <p className="text-text-muted font-mono text-xs uppercase uppercase underline decoration-accent/30 decoration-2">
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-xl mx-auto space-y-10 py-10 px-2 sm:px-4">
+      <div className="space-y-2 text-center sm:text-left">
+        <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">Configure Engine</h2>
+        <p className="text-text-muted font-mono text-[9px] sm:text-xs uppercase underline decoration-accent/30 decoration-2">
           Mapping Data Vector: {fileData?.filename || 'Active_Stream'}
         </p>
       </div>
@@ -255,7 +240,7 @@ function ProcessingScreen({ onComplete }: { onComplete: () => void }) {
 }
 
 /** STEP 3: Result Screen */
-function ResultScreen({ audit, onNext }: { audit: AuditResult, onNext: () => void }) {
+function ResultScreen({ audit, onBack, onNext }: { audit: AuditResult, onBack: () => void, onNext: () => void }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -335,18 +320,25 @@ function ResultScreen({ audit, onNext }: { audit: AuditResult, onNext: () => voi
            </div>
 
            {/* PRIMARY CTA */}
-           <div className="pt-6 border-t border-border-shadow/30">
+           <div className="pt-6 border-t border-border-shadow/30 flex flex-col sm:flex-row gap-4">
+              <PhysicalButton 
+                variant="ghost" 
+                className="flex-1 py-6 text-sm uppercase font-black tracking-widest gap-2"
+                onClick={onBack}
+              >
+                <ArrowRight className="rotate-180" size={16} /> Back to Config
+              </PhysicalButton>
               <PhysicalButton 
                 variant="primary" 
-                className="w-full py-6 text-lg uppercase font-black tracking-widest gap-3"
+                className="flex-[2] py-6 text-lg uppercase font-black tracking-widest gap-3"
                 onClick={onNext}
               >
-                Proceed to Mitigation & Certification <ArrowRight size={20} />
+                Proceed to Mitigation <ArrowRight size={20} />
               </PhysicalButton>
-              <p className="text-[9px] font-mono text-center text-text-muted mt-3 uppercase tracking-wider">
-                Step 4 of 5: Automated Bias Remediation Hub
-              </p>
            </div>
+           <p className="text-[9px] font-mono text-center text-text-muted mt-3 uppercase tracking-wider text-center">
+             Step 3 of 5: Bias Diagnosis Summary
+           </p>
         </div>
       </div>
     </motion.div>
@@ -354,7 +346,7 @@ function ResultScreen({ audit, onNext }: { audit: AuditResult, onNext: () => voi
 }
 
 /** STEP 4: Mitigation & Simulation */
-function MitigationScreen({ audit, onFinalize }: { audit: AuditResult, onFinalize: () => void }) {
+function MitigationScreen({ audit, onBack, onFinalize }: { audit: AuditResult, onBack: () => void, onFinalize: () => void }) {
   const [threshold, setThreshold] = useState(0.5);
   const { toast } = useToast();
 
@@ -386,9 +378,6 @@ function MitigationScreen({ audit, onFinalize }: { audit: AuditResult, onFinaliz
           <p className="font-mono text-[10px] lg:text-xs text-text-muted uppercase decoration-accent/30 underline decoration-2">Simulating threshold parity adjustments</p>
         </div>
         <div className="flex w-full sm:w-auto gap-3">
-           <PhysicalButton variant="ghost" className="flex-1 sm:flex-none gap-2 text-[10px]" onClick={() => window.location.reload()}>
-              <Trash2 size={16} /> Reset
-           </PhysicalButton>
            <PhysicalButton variant="secondary" className="flex-1 sm:flex-none gap-2 text-[10px]" onClick={downloadReport}>
               <Download size={16} /> Audit Report
            </PhysicalButton>
@@ -439,34 +428,49 @@ function MitigationScreen({ audit, onFinalize }: { audit: AuditResult, onFinaliz
            </div>
         </BoltedCard>
 
-        <div className="col-span-1 lg:col-span-4 space-y-6">
-           <BoltedCard className="p-6 space-y-4">
-              <h5 className="font-mono text-[10px] font-black uppercase text-text-muted tracking-widest flex items-center gap-2">
-                <ShieldAlert size={14} className="text-accent" /> Proxy Detection
-              </h5>
-              <div className="space-y-3">
-                 {(audit.proxy_features || []).length > 0 ? (audit.proxy_features || []).map(f => (
-                   <div key={f} className="flex justify-between items-center p-3 rounded bg-recessed border border-border-shadow">
-                      <span className="font-mono text-[11px] font-bold">{f}</span>
-                      <span className="text-[10px] font-mono text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20 font-black">HIGH RISK</span>
-                   </div>
-                 )) : (
-                   <div className="text-center py-6 opacity-40 font-mono text-[10px]">No strong proxies detected.</div>
-                 )}
-              </div>
-           </BoltedCard>
+        <div className="col-span-1 lg:col-span-4 space-y-6 flex flex-col justify-between">
+           <div className="space-y-6">
+              <BoltedCard className="p-6 space-y-4">
+                  <h5 className="font-mono text-[10px] font-black uppercase text-text-muted tracking-widest flex items-center gap-2">
+                    <ShieldAlert size={14} className="text-accent" /> Proxy Detection
+                  </h5>
+                  <div className="space-y-3">
+                    {(audit.proxy_features || []).length > 0 ? (audit.proxy_features || []).map(f => (
+                      <div key={f} className="flex justify-between items-center p-3 rounded bg-recessed border border-border-shadow">
+                          <span className="font-mono text-[11px] font-bold">{f}</span>
+                          <span className="text-[10px] font-mono text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20 font-black">HIGH RISK</span>
+                      </div>
+                    )) : (
+                      <div className="text-center py-6 opacity-40 font-mono text-[10px]">No strong proxies detected.</div>
+                    )}
+                  </div>
+              </BoltedCard>
 
-           <BoltedCard className="p-6 bg-accent border-accent text-white" elevated>
-              <h5 className="font-black uppercase tracking-tighter text-xl mb-1">Pass Certification</h5>
-              <p className="text-[10px] font-mono opacity-80 uppercase leading-snug">Lock these parameters into your production serving layer to meet Aequitas compliance standards.</p>
+              <BoltedCard className="p-6 bg-accent border-accent text-white" elevated>
+                  <h5 className="font-black uppercase tracking-tighter text-xl mb-1">Pass Certification</h5>
+                  <p className="text-[10px] font-mono opacity-80 uppercase leading-snug">Lock these parameters into your production serving layer to meet Aequitas compliance standards.</p>
+                  <PhysicalButton 
+                    size="sm" 
+                    className="w-full mt-6 bg-white text-accent hover:bg-white/90 border-none uppercase font-black tracking-widest"
+                    onClick={onFinalize}
+                  >
+                    Finalize & Deploy
+                  </PhysicalButton>
+              </BoltedCard>
+           </div>
+           
+           <div className="pt-6 border-t border-border-shadow/30">
               <PhysicalButton 
-                size="sm" 
-                className="w-full mt-6 bg-white text-accent hover:bg-white/90 border-none uppercase font-black tracking-widest"
-                onClick={onFinalize}
+                variant="ghost" 
+                className="w-full py-4 text-xs uppercase font-black tracking-widest gap-2 opacity-60 hover:opacity-100"
+                onClick={onBack}
               >
-                 Finalize & Deploy
+                <ArrowRight className="rotate-180" size={14} /> Back to Audit Results
               </PhysicalButton>
-           </BoltedCard>
+              <p className="text-[9px] font-mono text-center text-text-muted mt-2 uppercase tracking-wider">
+                Step 4 of 5: Bias Remediation
+              </p>
+           </div>
         </div>
       </div>
     </motion.div>
@@ -474,7 +478,7 @@ function MitigationScreen({ audit, onFinalize }: { audit: AuditResult, onFinaliz
 }
 
 /** FINAL STEP: Certification Success */
-function CertificationSuccess({ audit }: { audit: AuditResult }) {
+function CertificationSuccess({ audit, onBack, onReset }: { audit: AuditResult, onBack: () => void, onReset: () => void }) {
   const { toast } = useToast();
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-10">
@@ -528,16 +532,18 @@ function CertificationSuccess({ audit }: { audit: AuditResult }) {
         <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 to-transparent pointer-events-none rounded opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-12">
-         <PhysicalButton variant="ghost" className="w-full sm:w-auto gap-2 py-6 text-sm" onClick={() => window.location.reload()}>
+      <div className="flex flex-col gap-4 w-full max-w-xs mx-auto mt-12">
+         <PhysicalButton variant="primary" className="w-full gap-2 py-6 text-sm" onClick={onReset}>
             <RefreshCcw size={18} /> Start New Audit
          </PhysicalButton>
-         <PhysicalButton variant="primary" className="w-full sm:w-auto gap-2 py-6 text-sm" onClick={() => {
-            toast('Preparing digital certificate for print...', 'info');
-            window.print();
-         }}>
-            <Download size={18} /> Save Certificate
-         </PhysicalButton>
+         <div className="flex gap-4">
+            <PhysicalButton variant="ghost" className="flex-1 gap-2 py-4 text-[10px] uppercase font-black" onClick={onBack}>
+               <ArrowRight className="rotate-180" size={14} /> Back
+            </PhysicalButton>
+            <PhysicalButton variant="secondary" className="flex-[2] gap-2 py-4 text-[10px] uppercase font-black" onClick={() => window.print()}>
+               <Download size={16} /> Save Cert
+            </PhysicalButton>
+         </div>
       </div>
     </div>
   );
@@ -768,15 +774,15 @@ function AnalysisView({ audit, isProcessing }: { audit: AuditResult | null, isPr
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 py-4">
-      <div className="flex justify-between items-end mb-4 px-2">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 py-4 px-2 sm:px-4 lg:px-0">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-4 gap-4 pb-4 border-b border-border-shadow/20 lg:border-0 lg:pb-0">
         <div>
-          <h2 className="text-3xl font-black uppercase tracking-tighter">Bias Explorer</h2>
-          <p className="font-mono text-[10px] text-text-muted uppercase tracking-widest">Pearson Correlation + Game-Theoretic Influence</p>
+          <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter leading-none">Bias Explorer</h2>
+          <p className="font-mono text-[9px] text-text-muted uppercase tracking-widest mt-2">Correlation & Influence Vectors</p>
         </div>
-        <div className="text-right">
+        <div className="lg:text-right flex flex-col items-start lg:items-end">
           <div className="font-mono text-[8px] opacity-40 uppercase">Kernel Target</div>
-          <div className="font-bold uppercase tracking-tight text-accent">{audit.model_id}</div>
+          <div className="font-bold uppercase tracking-tight text-accent text-xs">{audit.model_id}</div>
         </div>
       </div>
 
@@ -911,15 +917,15 @@ function AdvisorView({ audit, isProcessing }: { audit: AuditResult | null, isPro
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10 py-4 max-w-5xl mx-auto">
-      <div className="flex items-center gap-6 border-b border-border-shadow/30 pb-10">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-purple-800 flex items-center justify-center text-white shadow-lg relative overflow-hidden">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10 py-4 max-w-5xl mx-auto px-2 sm:px-4 lg:px-0">
+      <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 border-b border-border-shadow/30 pb-10 text-center sm:text-left">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-purple-800 flex items-center justify-center text-white shadow-lg relative overflow-hidden shrink-0">
           <BrainCircuit size={40} className="relative z-10" />
           <motion.div animate={{ opacity: [0.1, 0.3, 0.1] }} transition={{ repeat: Infinity, duration: 3 }} className="absolute inset-0 bg-white" />
         </div>
-        <div>
-          <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">AI Fairness Advisor</h2>
-          <p className="font-mono text-[10px] text-text-muted mt-2 uppercase tracking-widest font-black text-accent">Active Remediation Agent: Online</p>
+        <div className="space-y-2">
+          <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tighter leading-none">AI Fairness Advisor</h2>
+          <p className="font-mono text-[9px] text-text-muted uppercase tracking-widest font-black text-accent">Active Remediation Agent: Online</p>
         </div>
       </div>
 
@@ -1170,6 +1176,25 @@ export default function Home() {
     toast('Dataset staged: ' + (data.filename || 'Source_Alpha'), 'success');
   };
 
+  const handleReset = async () => {
+    // 1. Clear Local Storage
+    localStorage.removeItem('aequitas_step');
+    localStorage.removeItem('aequitas_fileData');
+    localStorage.removeItem('aequitas_auditResult');
+    
+    // 2. Clear Local State
+    setStep(0);
+    setFileData(null);
+    setAuditResult(null);
+    
+    // 3. Optional: Reset backend engine
+    try {
+      await api.getShap('RESET'); // Hack to trigger a clear if needed, or add a real reset endpoint
+    } catch { /* ignore */ }
+    
+    toast('Audit state purged. New session ready.', 'info');
+  };
+
   const handleStartAudit = async (config: any) => {
     setStep(2);
     try {
@@ -1198,9 +1223,9 @@ export default function Home() {
       case 0: return <LandingScreen onNext={handleFileUploaded} />;
       case 1: return <ConfigScreen fileData={fileData} onBack={() => setStep(0)} onStartAudit={handleStartAudit} />;
       case 2: return <ProcessingScreen onComplete={() => setStep(3)} />;
-      case 3: return auditResult ? <ResultScreen audit={auditResult} onNext={() => setStep(4)} /> : <div>Error loading result</div>;
-      case 4: return auditResult ? <MitigationScreen audit={auditResult} onFinalize={() => setStep(5)} /> : null;
-      case 5: return auditResult ? <CertificationSuccess audit={auditResult} /> : null;
+      case 3: return auditResult ? <ResultScreen audit={auditResult} onBack={() => setStep(1)} onNext={() => setStep(4)} /> : <div>Error loading result</div>;
+      case 4: return auditResult ? <MitigationScreen audit={auditResult} onBack={() => setStep(3)} onFinalize={() => setStep(5)} /> : null;
+      case 5: return auditResult ? <CertificationSuccess audit={auditResult} onBack={() => setStep(4)} onReset={handleReset} /> : null;
       default: return null;
     }
   };
@@ -1246,8 +1271,9 @@ export default function Home() {
 
         {/* Global Progress Line (Wizard Only) */}
         {activeView === 'wizard' && step > 0 && (
-          <div className="flex justify-center mb-10">
-            <div className="flex items-center gap-1">
+          <div className="flex flex-col items-center mb-10">
+            {/* Desktop: Dots and lines */}
+            <div className="hidden lg:flex items-center gap-1">
               {STEPS.map((s, i) => (
                 <React.Fragment key={s.id}>
                   <div className={cn(
@@ -1260,6 +1286,16 @@ export default function Home() {
                   )}
                 </React.Fragment>
               ))}
+            </div>
+
+            {/* Mobile: Step X of Y */}
+            <div className="lg:hidden flex flex-col items-center gap-1">
+              <div className="font-mono text-[10px] text-accent font-black uppercase tracking-[0.2em]">
+                Step {step + 1} of {STEPS.length}
+              </div>
+              <div className="font-sans font-black text-xs uppercase tracking-tighter opacity-60 italic">
+                {STEPS[step].label}
+              </div>
             </div>
           </div>
         )}

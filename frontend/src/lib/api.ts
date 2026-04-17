@@ -172,10 +172,10 @@ export const api = {
 
   /** Full audit for a model (uses demo dataset or current staged data) */
   getAudit: (modelId: string, privilegedGroup = 'White', protectedAttr?: string, outcomeAttr?: string) => {
-    // Backend expects /audit with query params, not /audit/{modelId}
-    let url = `/audit?model_id=${encodeURIComponent(modelId)}&privileged_group=${encodeURIComponent(privilegedGroup)}`;
-    if (protectedAttr) url += `&protected_attribute=${encodeURIComponent(protectedAttr)}`;
-    if (outcomeAttr) url += `&outcome_attribute=${encodeURIComponent(outcomeAttr)}`;
+    // Backend expects /audit/{modelId} with query params for the attributes
+    let url = `/audit/${encodeURIComponent(modelId)}?privileged_group=${encodeURIComponent(privilegedGroup)}`;
+    if (protectedAttr) url += `&protected_attr=${encodeURIComponent(protectedAttr)}`;
+    if (outcomeAttr) url += `&outcome_attr=${encodeURIComponent(outcomeAttr)}`;
     return apiFetch<AuditResult>(url);
   },
 

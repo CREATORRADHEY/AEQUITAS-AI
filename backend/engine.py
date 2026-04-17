@@ -497,18 +497,48 @@ class FairnessEngine:
             return {"features": [], "matrix": []}
             
         config = self.metadata.get("config", {})
+        protected = config.get("protected_attr")
         outcome = config.get("outcome_attr")
         
-        # Use numeric features + outcome
-        features = [c for c in self._feature_cols if df[c].dtype in (int, float, np.int64, np.float64)]
-        if outcome and outcome in df.columns:
-            features.append(outcome)
+        try:
+            # 1. Start with the current feature set
+            # Copy dataframe to avoid side effects
+            X = df.copy()
             
-        corr = df[features].corr(method="pearson").fillna(0).round(3)
-        return {
-            "features": features,
-            "matrix": corr.values.tolist(),
-        }
+            # 2. Identify all relevant columns
+            cols_to_use = []
+            
+            # Add standard features (already logic-bound in self._feature_cols)
+            for col in self._feature_cols:
+                if col in X.columns:
+                    cols_to_use.append(col)
+            
+            # Add Protected/Outcome if missing
+            if protected and protected in X.columns and protected not in cols_to_use:
+                cols_to_use.append(protected)
+            if outcome and outcome in X.columns and outcome not in cols_to_use:
+                cols_to_use.append(outcome)
+                
+            X = X[cols_to_use].copy()
+            
+            # 3. Force encode everything that is object type
+            for col in X.columns:
+                if X[col].dtype == object:
+                    X[col] = LabelEncoder().fit_transform(X[col].astype(str))
+                else:
+                    X[col] = X[col].fillna(X[col].median() if not X[col].empty else 0)
+            
+            # 4. Final sanity check: ensure strictly numeric
+            X = X.select_dtypes(include=[np.number])
+            
+            corr = X.corr(method="pearson").fillna(0).round(3)
+            return {
+                "features": X.columns.tolist(),
+                "matrix": corr.values.tolist(),
+            }
+        except Exception as e:
+            print(f"Correlation matrix failure: {e}")
+            return {"features": [], "matrix": []}
 
     # ─────────────────────────────────────────────────────────────────────────
     #  REMEDIATION SIMULATION
